@@ -33,10 +33,28 @@
           <h1 class="font-black text-sm leading-tight uppercase">Check-List Inspección Previa</h1>
         </div>
       </div>
+      <span id="badge-conexion" class="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-600 text-white uppercase shrink-0">
+        Online
+      </span>
     </div>
   </header>
 
   <main class="max-w-lg mx-auto w-full p-3 space-y-4">
+
+    <!-- BANNER DE PENDIENTES DE SINCRONIZACIÓN OFFLINE -->
+    <section id="panel-pendientes" class="hidden bg-amber-100 border-2 border-amber-500 rounded-2xl p-3.5 shadow-sm space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-xs font-black text-amber-950">
+          📤 <span id="num-pendientes">0</span> checklist(s) pendientes de subir a Drive
+        </span>
+        <button type="button" id="btn-sincronizar-ahora" onclick="sincronizarPendientes()" class="bg-[#0f172a] text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase">
+          Subir Ahora
+        </button>
+      </div>
+      <p id="msg-sync-estado" class="text-[11px] font-semibold text-amber-900">
+        Se enviarán automáticamente en cuanto el teléfono recupere conexión a internet.
+      </p>
+    </section>
 
     <!-- 1. SELECTOR DE TIPO DE MAQUINARIA -->
     <section class="bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-amber-500">
@@ -220,6 +238,122 @@
     const EMPRESAS_BASE = ["ELECNOR", "BARAHONA"];
     let dictamenBloqueado = false;
     let fotoMaquinaDataUrl = "";
+
+    // --- GESTIÓN OFFLINE CON INDEXEDDB ---
+    const DB_NAME = "ElecnorChecklistsOfflineDB";
+    const STORE_NAME = "cola_envios";
+
+    function abrirDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+          }
+        };
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function guardarEnColaOffline(payload) {
+      const db = await abrirDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).add(payload);
+        tx.oncomplete = () => resolve();
+        tx.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function obtenerTodosPendientes() {
+      const db = await abrirDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const req = tx.objectStore(STORE_NAME).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function borrarDeColaOffline(id) {
+      const db = await abrirDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function actualizarPanelPendientes() {
+      const pendientes = await obtenerTodosPendientes();
+      const panel = document.getElementById("panel-pendientes");
+      const num = document.getElementById("num-pendientes");
+      if (pendientes.length > 0) {
+        num.textContent = pendientes.length;
+        panel.classList.remove("hidden");
+      } else {
+        panel.classList.add("hidden");
+      }
+    }
+
+    async function sincronizarPendientes() {
+      if (!navigator.onLine) {
+        document.getElementById("msg-sync-estado").textContent = "Sigues sin conexión a internet. Inténtalo cuando tengas cobertura.";
+        return;
+      }
+      const pendientes = await obtenerTodosPendientes();
+      if (pendientes.length === 0) return;
+
+      const btn = document.getElementById("btn-sincronizar-ahora");
+      const msg = document.getElementById("msg-sync-estado");
+      btn.disabled = true;
+      btn.textContent = "Subiendo...";
+      msg.textContent = "Subiendo checklists guardados en modo sin conexión...";
+
+      let subidos = 0;
+      for (const item of pendientes) {
+        try {
+          const { id, ...datosEnviar } = item;
+          await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(datosEnviar)
+          });
+          await borrarDeColaOffline(id);
+          subidos++;
+        } catch (err) {
+          break;
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Subir Ahora";
+      await actualizarPanelPendientes();
+
+      if (subidos > 0) {
+        alert(`✅ Sincronización completada: ${subidos} checklist(s) subidos correctamente a Google Drive y Google Sheets.`);
+      }
+    }
+
+    function actualizarEstadoRedUI() {
+      const badge = document.getElementById("badge-conexion");
+      if (navigator.onLine) {
+        badge.textContent = "Online";
+        badge.className = "text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-600 text-white uppercase shrink-0";
+        sincronizarPendientes();
+        cargarRegistroEmpresas();
+      } else {
+        badge.textContent = "Sin Red";
+        badge.className = "text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 uppercase shrink-0";
+      }
+    }
+
+    window.addEventListener("online", actualizarEstadoRedUI);
+    window.addEventListener("offline", actualizarEstadoRedUI);
 
     const FORMATOS_CHECKLIST = {
       GENERAL: {
@@ -418,6 +552,7 @@
 
     async function cargarRegistroEmpresas() {
       renderizarSelectEmpresas([]);
+      if (!navigator.onLine) return;
       try {
         const res = await fetch(SCRIPT_URL);
         const json = await res.json();
@@ -715,7 +850,7 @@
       const btn = document.getElementById("btn-generar-guardar");
       const box = document.getElementById("estado-guardado-box");
       btn.disabled = true;
-      btn.textContent = "⏳ Generando PDF y guardando en carpeta...";
+      btn.textContent = "⏳ Generando PDF...";
 
       const empresaLimpia = limpiarTextoArchivo(empresa);
       const tipoMaqLimpio = cfg.tipoNombreArchivo;
@@ -739,47 +874,68 @@
 
         wrapperPdf.style.display = "none";
 
-        if (SCRIPT_URL && SCRIPT_URL.startsWith("http")) {
-          const base64Clean = pdfDataUri.split(",")[1];
-          await fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({
-              tipoTitulo: cfg.titulo,
-              nombreArchivo: nombreArchivo,
-              empresa: empresa,
-              maquina: maquina,
-              matricula: matricula,
-              conductor: conductor,
-              ubicacion: ubicacion,
-              resultado: resultado,
-              inspector: f2Nombre,
-              pdfBase64: base64Clean
-            })
-          });
+        const base64Clean = pdfDataUri.split(",")[1];
+        const payloadEnvio = {
+          tipoTitulo: cfg.titulo,
+          nombreArchivo: nombreArchivo,
+          empresa: empresa,
+          maquina: maquina,
+          matricula: matricula,
+          conductor: conductor,
+          ubicacion: ubicacion,
+          resultado: resultado,
+          inspector: f2Nombre,
+          pdfBase64: base64Clean
+        };
+
+        let enviadoOnline = false;
+        if (navigator.onLine && SCRIPT_URL && SCRIPT_URL.startsWith("http")) {
+          try {
+            await fetch(SCRIPT_URL, {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify(payloadEnvio)
+            });
+            enviadoOnline = true;
+          } catch (e) {
+            enviadoOnline = false;
+          }
+        }
+
+        if (!enviadoOnline) {
+          await guardarEnColaOffline(payloadEnvio);
+          await actualizarPanelPendientes();
         }
 
         renderizarSelectEmpresas([empresa]);
         document.getElementById("c-empresa-select").value = empresa;
         document.getElementById("c-empresa-otra").classList.add("hidden");
 
-        box.className = "p-3.5 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-900 border border-emerald-400 space-y-2";
-        box.innerHTML = `
-          <div>✅ PDF generado y descargado: <strong>${nombreArchivo}</strong></div>
-          <p class="text-[11px] font-medium">Enviado a tu Google Drive: <strong>Mi unidad &gt; Checklists Maquinaria Obra &gt; ${empresa}</strong></p>
-          <div class="pt-1">
-            <a href="https://drive.google.com/drive/my-drive" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-lg uppercase text-[11px] font-black shadow">
-              📂 Abrir Mi Unidad en Google Drive
-            </a>
-          </div>
-        `;
+        if (enviadoOnline) {
+          box.className = "p-3.5 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-900 border border-emerald-400 space-y-2";
+          box.innerHTML = `
+            <div>✅ PDF generado y descargado: <strong>${nombreArchivo}</strong></div>
+            <p class="text-[11px] font-medium">Enviado a tu Google Drive: <strong>Mi unidad &gt; Checklists Maquinaria Obra &gt; ${empresa}</strong></p>
+            <div class="pt-1">
+              <a href="https://drive.google.com/drive/my-drive" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-lg uppercase text-[11px] font-black shadow">
+                📂 Abrir Mi Unidad en Google Drive
+              </a>
+            </div>
+          `;
+        } else {
+          box.className = "p-3.5 rounded-xl text-xs font-bold text-center bg-amber-100 text-amber-950 border-2 border-amber-500 space-y-1.5";
+          box.innerHTML = `
+            <div>📥 Sin internet: PDF descargado en tu móvil (<strong>${nombreArchivo}</strong>)</div>
+            <p class="text-[11px] font-medium">El informe queda guardado en la cola interna de la app y se subirá solo a la carpeta <strong>${empresa}</strong> de Drive en cuanto vuelvas a tener cobertura.</p>
+          `;
+        }
         box.classList.remove("hidden");
 
       } catch (err) {
         wrapperPdf.style.display = "none";
         box.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-100 text-rose-900 border border-rose-400";
-        box.textContent = "Error al generar o enviar el PDF: " + err.message;
+        box.textContent = "Error al generar el PDF: " + err.message;
         box.classList.remove("hidden");
       } finally {
         btn.disabled = false;
@@ -787,10 +943,17 @@
       }
     }
 
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+
     const hoy = new Date();
     document.getElementById("c-fecha").value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
     document.getElementById("c-hora").value = `${String(hoy.getHours()).padStart(2,'0')}:${String(hoy.getMinutes()).padStart(2,'0')}`;
-    cargarRegistroEmpresas();
+    actualizarEstadoRedUI();
+    actualizarPanelPendientes();
     cambiarFormatoChecklist();
     setTimeout(() => {
       inicializarCanvas("canvas-f1");
