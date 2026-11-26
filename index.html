@@ -38,36 +38,23 @@
 
   <main class="max-w-lg mx-auto w-full p-3 space-y-4">
 
-    <!-- 1. ESCÁNER CÁMARA IA + SELECTOR DE TIPO DE MAQUINARIA -->
+    <!-- 1. SELECTOR DE TIPO DE MAQUINARIA -->
     <section class="bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-amber-500">
       <div class="bg-amber-500 text-slate-950 px-4 py-2.5 text-xs font-black uppercase tracking-wide">
-        1. Identificar Máquina por Cámara o Seleccionar Formato
+        1. Selecciona el Formato de Checklist según Maquinaria
       </div>
-      <div class="p-4 space-y-3">
-        <!-- BOTÓN CÁMARA -->
-        <div>
-          <input type="file" id="input-camara-ia" accept="image/*" capture="environment" onchange="procesarFotoMaquina(event)" class="hidden">
-          <button type="button" id="btn-camara-ia" onclick="document.getElementById('input-camara-ia').click()" class="w-full bg-[#0f172a] hover:bg-slate-800 text-white font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-wide shadow flex items-center justify-center gap-2 transition">
-            <span class="text-lg">📷</span>
-            <span>Escanear Máquina con Cámara (Auto-detectar)</span>
-          </button>
-          <div id="estado-camara-ia" class="hidden mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center"></div>
-        </div>
-
-        <div class="border-t border-slate-200 pt-2.5">
-          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Formato de Checklist aplicado:</label>
-          <select id="select-tipo-checklist" onchange="cambiarFormatoChecklist()" class="w-full p-3 border-2 border-slate-300 rounded-xl text-sm font-black text-slate-900 bg-slate-50 focus:border-amber-500 focus:outline-none">
-            <option value="GENERAL">1. Inspección Previa Maquinaria Acceso a Obra (General)</option>
-            <option value="CAMION_PLUMA">2. Camión Pluma / Grúa Autopropulsada</option>
-            <option value="HINCADORA">3. Hincadora / Perforadora</option>
-            <option value="MANIPULADOR">4. Manipulador Telescópico / Carretilla Elevadora</option>
-            <option value="MOV_TIERRAS">5. Movimiento de Tierras (Tractor, Retro, Motoniveladora, Pala, Rodillo)</option>
-          </select>
-        </div>
+      <div class="p-4">
+        <select id="select-tipo-checklist" onchange="cambiarFormatoChecklist()" class="w-full p-3 border-2 border-slate-300 rounded-xl text-sm font-black text-slate-900 bg-slate-50 focus:border-amber-500 focus:outline-none">
+          <option value="GENERAL">1. Inspección Previa Maquinaria Acceso a Obra (General)</option>
+          <option value="CAMION_PLUMA">2. Camión Pluma / Grúa Autopropulsada</option>
+          <option value="HINCADORA">3. Hincadora / Perforadora</option>
+          <option value="MANIPULADOR">4. Manipulador Telescópico / Carretilla Elevadora</option>
+          <option value="MOV_TIERRAS">5. Movimiento de Tierras (Tractor, Retro, Motoniveladora, Pala, Rodillo)</option>
+        </select>
       </div>
     </section>
 
-    <!-- 2. DATOS GENERALES DE LA MÁQUINA Y EMPRESA -->
+    <!-- 2. DATOS GENERALES DE LA MÁQUINA, EMPRESA Y FOTO -->
     <section class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
       <div class="bg-[#0f172a] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wide">
         2. Información General y Datos de la Máquina
@@ -117,6 +104,28 @@
         <div>
           <label class="block text-[10px] font-bold text-slate-500 uppercase">Conductor / Operador Habitual *</label>
           <input type="text" id="c-conductor" placeholder="Apellidos y Nombre del operador" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold bg-white">
+        </div>
+
+        <!-- FOTOGRAFÍA DE LA MÁQUINA PARA ADJUNTAR AL PDF -->
+        <div class="pt-2 border-t border-slate-200">
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Fotografía de la Máquina (Se incluirá en el PDF)</label>
+          <input type="file" id="input-foto-maquina" accept="image/*" capture="environment" onchange="cargarFotoMaquina(event)" class="hidden">
+          <button type="button" onclick="document.getElementById('input-foto-maquina').click()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-3 px-4 rounded-xl text-xs uppercase tracking-wide shadow flex items-center justify-center gap-2 transition">
+            <span class="text-base">📷</span>
+            <span id="texto-btn-foto">Hacer Foto a la Máquina</span>
+          </button>
+
+          <div id="contenedor-preview-foto" class="hidden mt-2.5 bg-slate-50 p-2.5 rounded-xl border border-slate-300 space-y-2 text-center">
+            <img id="img-preview-maquina" src="" alt="Vista previa máquina" class="max-h-48 mx-auto rounded-lg border border-slate-300 object-contain">
+            <div class="flex justify-center gap-3">
+              <button type="button" onclick="document.getElementById('input-foto-maquina').click()" class="text-[11px] font-bold text-blue-600 underline">
+                Repetir foto
+              </button>
+              <button type="button" onclick="eliminarFotoMaquina()" class="text-[11px] font-bold text-rose-600 underline">
+                Quitar foto
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -210,6 +219,7 @@
 
     const EMPRESAS_BASE = ["ELECNOR", "BARAHONA"];
     let dictamenBloqueado = false;
+    let fotoMaquinaDataUrl = "";
 
     const FORMATOS_CHECKLIST = {
       GENERAL: {
@@ -361,75 +371,37 @@
 
     const canvasEstado = {};
 
-    function comprimirFotoBase64(file, maxAncho = 900) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = new Image();
-          img.onload = () => {
-            const scale = Math.min(1, maxAncho / img.width);
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.round(img.width * scale);
-            canvas.height = Math.round(img.height * scale);
-            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-            resolve(dataUrl.split(",")[1]);
-          };
-          img.onerror = reject;
-          img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function procesarFotoMaquina(event) {
+    function cargarFotoMaquina(event) {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      const btn = document.getElementById("btn-camara-ia");
-      const estado = document.getElementById("estado-camara-ia");
-      btn.disabled = true;
-      btn.innerHTML = `<span class="text-lg">⏳</span><span>Analizando maquinaria con IA...</span>`;
-      estado.className = "mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center bg-amber-100 text-amber-900 border border-amber-400";
-      estado.textContent = "Identificando tipo de máquina, modelo y matrícula...";
-      estado.classList.remove("hidden");
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const maxAncho = 800;
+          const scale = Math.min(1, maxAncho / img.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      try {
-        const base64 = await comprimirFotoBase64(file);
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            accion: "analizar_maquina",
-            imagenBase64: base64,
-            mimeType: "image/jpeg"
-          })
-        });
+          fotoMaquinaDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+          document.getElementById("img-preview-maquina").src = fotoMaquinaDataUrl;
+          document.getElementById("contenedor-preview-foto").classList.remove("hidden");
+          document.getElementById("texto-btn-foto").textContent = "Foto Adjuntada (Cambiar)";
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
 
-        const data = await res.json();
-        if (data.status === "ok") {
-          const sel = document.getElementById("select-tipo-checklist");
-          if (FORMATOS_CHECKLIST[data.categoria]) {
-            sel.value = data.categoria;
-            cambiarFormatoChecklist();
-          }
-          if (data.modelo) document.getElementById("c-maquina").value = data.modelo;
-          if (data.matricula) document.getElementById("c-matricula").value = data.matricula.toUpperCase();
-
-          estado.className = "mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center bg-emerald-100 text-emerald-900 border border-emerald-400";
-          estado.textContent = `✅ Detectado: ${data.modelo || data.categoria}${data.matricula ? " (" + data.matricula + ")" : ""}`;
-        } else {
-          throw new Error(data.mensaje || "No se pudo analizar la imagen.");
-        }
-      } catch (err) {
-        estado.className = "mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center bg-rose-100 text-rose-900 border border-rose-400";
-        estado.textContent = "⚠️ No se pudo identificar automáticamente. Selecciónalo manualmente abajo.";
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<span class="text-lg">📷</span><span>Escanear Máquina con Cámara (Auto-detectar)</span>`;
-        event.target.value = "";
-      }
+    function eliminarFotoMaquina() {
+      fotoMaquinaDataUrl = "";
+      document.getElementById("input-foto-maquina").value = "";
+      document.getElementById("img-preview-maquina").src = "";
+      document.getElementById("contenedor-preview-foto").classList.add("hidden");
+      document.getElementById("texto-btn-foto").textContent = "Hacer Foto a la Máquina";
     }
 
     function renderizarSelectEmpresas(lista) {
@@ -647,6 +619,19 @@
         `;
       }).join("");
 
+      const bloqueFotoHTML = fotoMaquinaDataUrl ? `
+        <table style="width:100%; border-collapse:collapse; margin-bottom:6px; font-size:9.5px;">
+          <tr style="background:#0b2254; color:#fff;">
+            <th style="border:1px solid #444; padding:4px 6px; text-align:left;">REGISTRO FOTOGRÁFICO DE LA MÁQUINA INSPECCIONADA</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #444; padding:6px; text-align:center;">
+              <img src="${fotoMaquinaDataUrl}" style="max-height:175px; max-width:95%; margin:0 auto; border:1px solid #ccc;">
+            </td>
+          </tr>
+        </table>
+      ` : "";
+
       const wrapperPdf = document.getElementById("wrapper-pdf");
       const zonaPdf = document.getElementById("zona-render-pdf");
       zonaPdf.innerHTML = `
@@ -704,6 +689,8 @@
             <td style="border:1px solid #444; padding:4px 6px;"><strong>OBSERVACIONES GENERALES:</strong> ${obsGenerales || "Sin observaciones."}</td>
           </tr>
         </table>
+
+        ${bloqueFotoHTML}
 
         <table style="width:100%; border-collapse:collapse; font-size:9.5px;">
           <tr style="background:#0b2254; color:#fff;">
