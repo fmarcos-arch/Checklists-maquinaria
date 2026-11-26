@@ -12,6 +12,7 @@
     .pill-radio:checked + span { background-color: #0f172a; color: #fff; border-color: #0f172a; font-weight: 800; }
     .pill-mal:checked + span { background-color: #dc2626; color: #fff; border-color: #b91c1c; font-weight: 800; }
     .pill-bien:checked + span { background-color: #059669; color: #fff; border-color: #047857; font-weight: 800; }
+    .pill-bien:disabled + span { opacity: 0.4; cursor: not-allowed; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-900 pb-16">
@@ -78,7 +79,8 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div>
             <label class="block text-[10px] font-bold text-slate-500 uppercase">Empresa Subcontratista (Carpeta) *</label>
-            <input type="text" id="c-empresa" placeholder="Nombre de la empresa" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold uppercase bg-white">
+            <select id="c-empresa-select" onchange="gestionarCambioEmpresa()" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold uppercase bg-white"></select>
+            <input type="text" id="c-empresa-otra" placeholder="Escribe el nombre de la empresa..." class="hidden w-full mt-1.5 p-2 border-2 border-amber-500 rounded-lg font-bold uppercase bg-amber-50">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-500 uppercase">Empresa Propietaria / Alquiladora</label>
@@ -122,14 +124,20 @@
       </div>
       <div class="p-4 space-y-3 text-xs">
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Estado de la máquina para acceso a obra *</label>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">Estado de la máquina para acceso a obra *</label>
+            <span id="contador-negativos" class="text-[10px] font-extrabold text-slate-500">Puntos negativos: 0</span>
+          </div>
+          <div id="aviso-auto-no-apto" class="hidden mb-2 p-2.5 rounded-lg bg-rose-100 border border-rose-400 text-rose-900 text-[11px] font-extrabold">
+            ⛔ NO APTO AUTOMÁTICO: Se han detectado 3 o más puntos negativos.
+          </div>
           <div class="grid grid-cols-2 gap-2.5">
             <label class="cursor-pointer text-center">
-              <input type="radio" name="dictamen_apto" value="APTO" checked class="hidden pill-bien">
+              <input type="radio" id="radio-apto" name="dictamen_apto" value="APTO" checked class="hidden pill-bien">
               <span class="block py-3 rounded-xl border-2 border-slate-300 bg-slate-50 text-slate-700 font-black text-sm">✅ APTO</span>
             </label>
             <label class="cursor-pointer text-center">
-              <input type="radio" name="dictamen_apto" value="NO APTO" class="hidden pill-mal">
+              <input type="radio" id="radio-no-apto" name="dictamen_apto" value="NO APTO" class="hidden pill-mal">
               <span class="block py-3 rounded-xl border-2 border-slate-300 bg-slate-50 text-slate-700 font-black text-sm">⛔ NO APTO</span>
             </label>
           </div>
@@ -186,8 +194,17 @@
   </div>
 
   <script>
-    // PEGA AQUÍ LA URL /exec DE TU GOOGLE APPS SCRIPT
+    // URL /exec DE TU GOOGLE APPS SCRIPT
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLjNj-rar2OgHXxUsqdwiATZJufp1g5EwR7Ry-u_6NdglFC38PWegU67KTQzb9CWcRQw/exec";
+
+    // LISTA DE EMPRESAS SUBCONTRATISTAS (APARECERÁN EN EL DESPLEGABLE)
+    const LISTA_EMPRESAS = [
+      "ELECNOR",
+      "BARAHONA",
+      "EXCAVACIONES Y MOVIMIENTOS",
+      "TRANSPORTES Y GRUAS",
+      "INSTALACIONES SOLARES"
+    ];
 
     const FORMATOS_CHECKLIST = {
       GENERAL: {
@@ -339,6 +356,36 @@
 
     const canvasEstado = {};
 
+    function cargarDesplegableEmpresas() {
+      const sel = document.getElementById("c-empresa-select");
+      const opcionesHTML = [
+        `<option value="">-- Selecciona Empresa --</option>`,
+        ...LISTA_EMPRESAS.map(emp => `<option value="${emp.toUpperCase()}">${emp.toUpperCase()}</option>`),
+        `<option value="__OTRA__">+ OTRA EMPRESA (ESCRIBIR MANUALMENTE)...</option>`
+      ];
+      sel.innerHTML = opcionesHTML.join("");
+    }
+
+    function gestionarCambioEmpresa() {
+      const sel = document.getElementById("c-empresa-select");
+      const inputOtra = document.getElementById("c-empresa-otra");
+      if (sel.value === "__OTRA__") {
+        inputOtra.classList.remove("hidden");
+        inputOtra.focus();
+      } else {
+        inputOtra.classList.add("hidden");
+        inputOtra.value = "";
+      }
+    }
+
+    function obtenerEmpresaSeleccionada() {
+      const sel = document.getElementById("c-empresa-select").value;
+      if (sel === "__OTRA__") {
+        return document.getElementById("c-empresa-otra").value.trim().toUpperCase();
+      }
+      return sel.trim().toUpperCase();
+    }
+
     function inicializarCanvas(id) {
       const c = document.getElementById(id);
       if (!c) return;
@@ -397,7 +444,7 @@
               const cls = op === cfg.positivo ? "pill-bien" : op === cfg.negativo ? "pill-mal" : "pill-radio";
               return `
                 <label class="cursor-pointer text-center">
-                  <input type="radio" name="item_${idx}" value="${op}" ${op === cfg.positivo ? "checked" : ""} class="hidden ${cls}">
+                  <input type="radio" name="item_${idx}" value="${op}" ${op === cfg.positivo ? "checked" : ""} onchange="evaluarDictamenAutomatico()" class="hidden ${cls}">
                   <span class="block py-1.5 text-[11px] font-bold rounded-lg border border-slate-300 bg-slate-50 text-slate-600 transition">${op}</span>
                 </label>
               `;
@@ -406,6 +453,42 @@
           <input type="text" id="obs_item_${idx}" placeholder="Observaciones del punto (opcional)..." class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[11px] bg-slate-50">
         </div>
       `).join("");
+
+      evaluarDictamenAutomatico();
+    }
+
+    function evaluarDictamenAutomatico() {
+      const key = document.getElementById("select-tipo-checklist").value;
+      const cfg = FORMATOS_CHECKLIST[key];
+      let negativos = 0;
+
+      cfg.items.forEach((_, idx) => {
+        const val = document.querySelector(`input[name="item_${idx}"]:checked`)?.value;
+        if (val === cfg.negativo) negativos++;
+      });
+
+      const contador = document.getElementById("contador-negativos");
+      const aviso = document.getElementById("aviso-auto-no-apto");
+      const radioApto = document.getElementById("radio-apto");
+      const radioNoApto = document.getElementById("radio-no-apto");
+
+      contador.textContent = `Puntos negativos (${cfg.negativo}): ${negativos}`;
+      contador.className = negativos >= 3
+        ? "text-[10px] font-black text-rose-600"
+        : "text-[10px] font-extrabold text-slate-500";
+
+      if (negativos >= 3) {
+        radioNoApto.checked = true;
+        radioApto.disabled = true;
+        aviso.classList.remove("hidden");
+      } else {
+        const estabaBloqueado = radioApto.disabled;
+        radioApto.disabled = false;
+        aviso.classList.add("hidden");
+        if (estabaBloqueado) {
+          radioApto.checked = true;
+        }
+      }
     }
 
     function marcarTodosPositivo() {
@@ -415,6 +498,7 @@
         const el = document.querySelector(`input[name="item_${idx}"][value="${cfg.positivo}"]`);
         if (el) el.checked = true;
       });
+      evaluarDictamenAutomatico();
     }
 
     async function finalizarYGenerarPDF() {
@@ -424,7 +508,7 @@
       const fecha = document.getElementById("c-fecha").value;
       const hora = document.getElementById("c-hora").value;
       const ubicacion = document.getElementById("c-ubicacion").value.trim();
-      const empresa = document.getElementById("c-empresa").value.trim().toUpperCase();
+      const empresa = obtenerEmpresaSeleccionada();
       const alquiladora = document.getElementById("c-alquiladora").value.trim();
       const maquina = document.getElementById("c-maquina").value.trim();
       const matricula = document.getElementById("c-matricula").value.trim().toUpperCase();
@@ -614,6 +698,7 @@
     const hoy = new Date();
     document.getElementById("c-fecha").value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
     document.getElementById("c-hora").value = `${String(hoy.getHours()).padStart(2,'0')}:${String(hoy.getMinutes()).padStart(2,'0')}`;
+    cargarDesplegableEmpresas();
     cambiarFormatoChecklist();
     setTimeout(() => {
       inicializarCanvas("canvas-f1");
