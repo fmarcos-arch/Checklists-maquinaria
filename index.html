@@ -12,7 +12,7 @@
     .pill-radio:checked + span { background-color: #0f172a; color: #fff; border-color: #0f172a; font-weight: 800; }
     .pill-mal:checked + span { background-color: #dc2626; color: #fff; border-color: #b91c1c; font-weight: 800; }
     .pill-bien:checked + span { background-color: #059669; color: #fff; border-color: #047857; font-weight: 800; }
-    .pill-bien:disabled + span { opacity: 0.4; cursor: not-allowed; }
+    input:disabled + span { opacity: 0.45; cursor: not-allowed; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-900 pb-16">
@@ -38,19 +38,32 @@
 
   <main class="max-w-lg mx-auto w-full p-3 space-y-4">
 
-    <!-- 1. SELECTOR DE TIPO DE MAQUINARIA -->
+    <!-- 1. ESCÁNER CÁMARA IA + SELECTOR DE TIPO DE MAQUINARIA -->
     <section class="bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-amber-500">
       <div class="bg-amber-500 text-slate-950 px-4 py-2.5 text-xs font-black uppercase tracking-wide">
-        1. Selecciona el Formato de Checklist según Maquinaria
+        1. Identificar Máquina por Cámara o Seleccionar Formato
       </div>
-      <div class="p-4">
-        <select id="select-tipo-checklist" onchange="cambiarFormatoChecklist()" class="w-full p-3 border-2 border-slate-300 rounded-xl text-sm font-black text-slate-900 bg-slate-50 focus:border-amber-500 focus:outline-none">
-          <option value="GENERAL">1. Inspección Previa Maquinaria Acceso a Obra (General)</option>
-          <option value="CAMION_PLUMA">2. Camión Pluma / Grúa Autopropulsada</option>
-          <option value="HINCADORA">3. Hincadora / Perforadora</option>
-          <option value="MANIPULADOR">4. Manipulador Telescópico / Carretilla Elevadora</option>
-          <option value="MOV_TIERRAS">5. Movimiento de Tierras (Tractor, Retro, Motoniveladora, Pala, Rodillo)</option>
-        </select>
+      <div class="p-4 space-y-3">
+        <!-- BOTÓN CÁMARA -->
+        <div>
+          <input type="file" id="input-camara-ia" accept="image/*" capture="environment" onchange="procesarFotoMaquina(event)" class="hidden">
+          <button type="button" id="btn-camara-ia" onclick="document.getElementById('input-camara-ia').click()" class="w-full bg-[#0f172a] hover:bg-slate-800 text-white font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-wide shadow flex items-center justify-center gap-2 transition">
+            <span class="text-lg">📷</span>
+            <span>Escanear Máquina con Cámara (Auto-detectar)</span>
+          </button>
+          <div id="estado-camara-ia" class="hidden mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center"></div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-2.5">
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Formato de Checklist aplicado:</label>
+          <select id="select-tipo-checklist" onchange="cambiarFormatoChecklist()" class="w-full p-3 border-2 border-slate-300 rounded-xl text-sm font-black text-slate-900 bg-slate-50 focus:border-amber-500 focus:outline-none">
+            <option value="GENERAL">1. Inspección Previa Maquinaria Acceso a Obra (General)</option>
+            <option value="CAMION_PLUMA">2. Camión Pluma / Grúa Autopropulsada</option>
+            <option value="HINCADORA">3. Hincadora / Perforadora</option>
+            <option value="MANIPULADOR">4. Manipulador Telescópico / Carretilla Elevadora</option>
+            <option value="MOV_TIERRAS">5. Movimiento de Tierras (Tractor, Retro, Motoniveladora, Pala, Rodillo)</option>
+          </select>
+        </div>
       </div>
     </section>
 
@@ -79,8 +92,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div>
             <label class="block text-[10px] font-bold text-slate-500 uppercase">Empresa Subcontratista (Carpeta) *</label>
-            <select id="c-empresa-select" onchange="gestionarCambioEmpresa()" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold uppercase bg-white"></select>
-            <input type="text" id="c-empresa-otra" placeholder="Escribe el nombre de la empresa..." class="hidden w-full mt-1.5 p-2 border-2 border-amber-500 rounded-lg font-bold uppercase bg-amber-50">
+            <select id="c-empresa-select" onchange="gestionarCambioEmpresa()" class="w-full mt-1 p-2 border-2 border-slate-300 rounded-lg font-bold uppercase bg-white">
+              <option value="">Cargando registro de empresas...</option>
+            </select>
+            <input type="text" id="c-empresa-otra" placeholder="Escribe nombre para registrar..." class="hidden w-full mt-1.5 p-2 border-2 border-amber-500 rounded-lg font-bold uppercase bg-amber-50">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-500 uppercase">Empresa Propietaria / Alquiladora</label>
@@ -118,7 +133,7 @@
     </section>
 
     <!-- 4. RESULTADO Y OBSERVACIONES GENERALES -->
-    <section class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+    <section id="seccion-dictamen" class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
       <div class="bg-[#0f172a] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wide">
         4. Dictamen Final y Observaciones
       </div>
@@ -128,8 +143,8 @@
             <label class="block text-[10px] font-bold text-slate-500 uppercase">Estado de la máquina para acceso a obra *</label>
             <span id="contador-negativos" class="text-[10px] font-extrabold text-slate-500">Puntos negativos: 0</span>
           </div>
-          <div id="aviso-auto-no-apto" class="hidden mb-2 p-2.5 rounded-lg bg-rose-100 border border-rose-400 text-rose-900 text-[11px] font-extrabold">
-            ⛔ NO APTO AUTOMÁTICO: Se han detectado 3 o más puntos negativos.
+          <div id="aviso-auto-no-apto" class="hidden mb-2 p-2.5 rounded-lg bg-rose-100 border-2 border-rose-500 text-rose-950 text-[11px] font-black">
+            🔒 BLOQUEADO EN NO APTO: Se han marcado 3 o más puntos negativos. No se puede modificar manualmente.
           </div>
           <div class="grid grid-cols-2 gap-2.5">
             <label class="cursor-pointer text-center">
@@ -156,7 +171,6 @@
         5. Firmas (Responsable Subcontrata / Conductor y TPRL Elecnor)
       </div>
       <div class="p-4 space-y-4 text-xs">
-        <!-- FIRMA 1 -->
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
           <p class="font-black text-slate-800 uppercase" id="label-firmante-1">1. Responsable Subcontratista / Conductor *</p>
           <input type="text" id="firma1-nombre" placeholder="Nombre y Apellidos *" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold">
@@ -167,7 +181,6 @@
           <canvas id="canvas-f1" class="w-full h-28 border-2 border-dashed border-slate-400 rounded-lg bg-white touch-canvas"></canvas>
         </div>
 
-        <!-- FIRMA 2 -->
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
           <p class="font-black text-slate-800 uppercase" id="label-firmante-2">2. Revisado por Inspector / TPRL Elecnor *</p>
           <input type="text" id="firma2-nombre" placeholder="Nombre y Apellidos Inspector Elecnor *" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold">
@@ -188,23 +201,15 @@
 
   </main>
 
-  <!-- CONTENEDOR EN FLUJO VISIBLE PARA EVITAR PÁGINA EN BLANCO EN EL PDF -->
   <div id="wrapper-pdf" style="display:none; background:#fff; padding:12px;">
     <div id="zona-render-pdf" style="width:740px; margin:0 auto; background:#fff; color:#111; padding:12px; font-family:Arial, Helvetica, sans-serif;"></div>
   </div>
 
   <script>
-    // URL /exec DE TU GOOGLE APPS SCRIPT
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLjNj-rar2OgHXxUsqdwiATZJufp1g5EwR7Ry-u_6NdglFC38PWegU67KTQzb9CWcRQw/exec";
 
-    // LISTA DE EMPRESAS SUBCONTRATISTAS (APARECERÁN EN EL DESPLEGABLE)
-    const LISTA_EMPRESAS = [
-      "ELECNOR",
-      "BARAHONA",
-      "EXCAVACIONES Y MOVIMIENTOS",
-      "TRANSPORTES Y GRUAS",
-      "INSTALACIONES SOLARES"
-    ];
+    const EMPRESAS_BASE = ["ELECNOR", "BARAHONA"];
+    let dictamenBloqueado = false;
 
     const FORMATOS_CHECKLIST = {
       GENERAL: {
@@ -356,14 +361,99 @@
 
     const canvasEstado = {};
 
-    function cargarDesplegableEmpresas() {
+    function comprimirFotoBase64(file, maxAncho = 900) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxAncho / img.width);
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+            resolve(dataUrl.split(",")[1]);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function procesarFotoMaquina(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const btn = document.getElementById("btn-camara-ia");
+      const estado = document.getElementById("estado-camara-ia");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="text-lg">⏳</span><span>Analizando maquinaria con IA...</span>`;
+      estado.className = "mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center bg-amber-100 text-amber-900 border border-amber-400";
+      estado.textContent = "Identificando tipo de máquina, modelo y matrícula...";
+      estado.classList.remove("hidden");
+
+      try {
+        const base64 = await comprimirFotoBase64(file);
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            accion: "analizar_maquina",
+            imagenBase64: base64,
+            mimeType: "image/jpeg"
+          })
+        });
+
+        const data = await res.json();
+        if (data.status === "ok") {
+          const sel = document.getElementById("select-tipo-checklist");
+          if (FORMATOS_CHECKLIST[data.categoria]) {
+            sel.value = data.categoria;
+            cambiarFormatoChecklist();
+          }
+          if (data.modelo) document.getElementById("c-maquina").value = data.modelo;
+          if (data.matricula) document.getElementById("c-matricula").value = data.matricula.toUpperCase();
+
+          estado.className = "mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center bg-emerald-100 text-emerald-900 border border-emerald-400";
+          estado.textContent = `✅ Detectado: ${data.modelo || data.categoria}${data.matricula ? " (" + data.matricula + ")" : ""}`;
+        } else {
+          throw new Error(data.mensaje || "No se pudo analizar la imagen.");
+        }
+      } catch (err) {
+        estado.className = "mt-2 p-2.5 rounded-lg text-[11px] font-bold text-center bg-rose-100 text-rose-900 border border-rose-400";
+        estado.textContent = "⚠️ No se pudo identificar automáticamente. Selecciónalo manualmente abajo.";
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="text-lg">📷</span><span>Escanear Máquina con Cámara (Auto-detectar)</span>`;
+        event.target.value = "";
+      }
+    }
+
+    function renderizarSelectEmpresas(lista) {
       const sel = document.getElementById("c-empresa-select");
-      const opcionesHTML = [
+      const guardadasLocal = JSON.parse(localStorage.getItem("elecnor_empresas_reg") || "[]");
+      const unicas = Array.from(new Set([...EMPRESAS_BASE, ...guardadasLocal, ...lista])).sort();
+
+      sel.innerHTML = [
         `<option value="">-- Selecciona Empresa --</option>`,
-        ...LISTA_EMPRESAS.map(emp => `<option value="${emp.toUpperCase()}">${emp.toUpperCase()}</option>`),
-        `<option value="__OTRA__">+ OTRA EMPRESA (ESCRIBIR MANUALMENTE)...</option>`
-      ];
-      sel.innerHTML = opcionesHTML.join("");
+        ...unicas.map(emp => `<option value="${emp}">${emp}</option>`),
+        `<option value="__OTRA__">+ REGISTRAR NUEVA EMPRESA...</option>`
+      ].join("");
+    }
+
+    async function cargarRegistroEmpresas() {
+      renderizarSelectEmpresas([]);
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const json = await res.json();
+        if (json && Array.isArray(json.empresas)) {
+          localStorage.setItem("elecnor_empresas_reg", JSON.stringify(json.empresas));
+          renderizarSelectEmpresas(json.empresas);
+        }
+      } catch (e) {}
     }
 
     function gestionarCambioEmpresa() {
@@ -381,7 +471,15 @@
     function obtenerEmpresaSeleccionada() {
       const sel = document.getElementById("c-empresa-select").value;
       if (sel === "__OTRA__") {
-        return document.getElementById("c-empresa-otra").value.trim().toUpperCase();
+        const nueva = document.getElementById("c-empresa-otra").value.trim().toUpperCase();
+        if (nueva) {
+          const prev = JSON.parse(localStorage.getItem("elecnor_empresas_reg") || "[]");
+          if (!prev.includes(nueva)) {
+            prev.push(nueva);
+            localStorage.setItem("elecnor_empresas_reg", JSON.stringify(prev));
+          }
+        }
+        return nueva;
       }
       return sel.trim().toUpperCase();
     }
@@ -480,13 +578,16 @@
       if (negativos >= 3) {
         radioNoApto.checked = true;
         radioApto.disabled = true;
+        radioNoApto.disabled = true;
         aviso.classList.remove("hidden");
+        dictamenBloqueado = true;
       } else {
-        const estabaBloqueado = radioApto.disabled;
         radioApto.disabled = false;
+        radioNoApto.disabled = false;
         aviso.classList.add("hidden");
-        if (estabaBloqueado) {
+        if (dictamenBloqueado) {
           radioApto.checked = true;
+          dictamenBloqueado = false;
         }
       }
     }
@@ -514,7 +615,7 @@
       const matricula = document.getElementById("c-matricula").value.trim().toUpperCase();
       const conductor = document.getElementById("c-conductor").value.trim();
       const obsGenerales = document.getElementById("c-obs-generales").value.trim();
-      const resultado = document.querySelector('input[name="dictamen_apto"]:checked').value;
+      const resultado = document.getElementById("radio-no-apto").checked ? "NO APTO" : "APTO";
 
       const f1Nombre = document.getElementById("firma1-nombre").value.trim();
       const f2Nombre = document.getElementById("firma2-nombre").value.trim();
@@ -672,6 +773,10 @@
           });
         }
 
+        renderizarSelectEmpresas([empresa]);
+        document.getElementById("c-empresa-select").value = empresa;
+        document.getElementById("c-empresa-otra").classList.add("hidden");
+
         box.className = "p-3.5 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-900 border border-emerald-400 space-y-2";
         box.innerHTML = `
           <div>✅ PDF generado y descargado: <strong>${nombreArchivo}</strong></div>
@@ -698,7 +803,7 @@
     const hoy = new Date();
     document.getElementById("c-fecha").value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
     document.getElementById("c-hora").value = `${String(hoy.getHours()).padStart(2,'0')}:${String(hoy.getMinutes()).padStart(2,'0')}`;
-    cargarDesplegableEmpresas();
+    cargarRegistroEmpresas();
     cambiarFormatoChecklist();
     setTimeout(() => {
       inicializarCanvas("canvas-f1");
