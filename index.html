@@ -2,507 +2,1074 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checklist Inspección Maquinaria - Elecnor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Check-List Maquinaria Acceso Obra - Elecnor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    :root {
-      --elecnor-azul: #002255;
-      --elecnor-azul-oscuro: #001536;
-      --elecnor-naranja: #F35000;
-      --elecnor-naranja-hover: #d94600;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(135deg, var(--elecnor-azul) 0%, var(--elecnor-azul-oscuro) 100%);
-      min-height: 100vh;
-      margin: 0;
-      padding: 15px;
-      color: #333;
-      box-sizing: border-box;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-      border-top: 5px solid var(--elecnor-naranja);
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid var(--elecnor-azul);
-      padding-bottom: 12px;
-      margin-bottom: 20px;
-    }
-
-    h2 {
-      color: var(--elecnor-azul);
-      margin: 0;
-      font-size: 1.35rem;
-    }
-
-    h3 {
-      color: var(--elecnor-azul);
-      border-bottom: 2px solid var(--elecnor-naranja);
-      padding-bottom: 6px;
-      margin-top: 22px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 5px;
-      font-size: 0.9rem;
-      color: var(--elecnor-azul);
-    }
-
-    input[type="text"], input[type="password"], input[type="email"], select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      box-sizing: border-box;
-      font-size: 1rem;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--elecnor-naranja);
-      box-shadow: 0 0 0 2px rgba(243, 80, 0, 0.15);
-    }
-
-    .check-item {
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid var(--elecnor-azul);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-      background: #f8fafc;
-    }
-
-    .check-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 6px;
-    }
-
-    .btn-estado {
-      padding: 8px 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      background: #fff;
-      transition: all 0.2s;
-    }
-
-    .btn-estado.apto.active {
-      background: #28a745;
-      color: #fff;
-      border-color: #28a745;
-    }
-
-    .btn-estado.no-apto.active {
-      background: #dc3545;
-      color: #fff;
-      border-color: #dc3545;
-    }
-
-    .fallo-box {
-      display: none;
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px dashed #cbd5e1;
-    }
-
-    .preview-img {
-      max-width: 150px;
-      margin-top: 8px;
-      border-radius: 5px;
-      display: none;
-      border: 1px solid #ccc;
-    }
-
-    canvas {
-      border: 1px solid #94a3b8;
-      border-radius: 6px;
-      width: 100%;
-      height: 140px;
-      touch-action: none;
-      background: #fff;
-    }
-
-    .btn-primary {
-      width: 100%;
-      padding: 14px;
-      background: var(--elecnor-naranja);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 1.05rem;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background 0.2s;
-    }
-
-    .btn-primary:hover {
-      background: var(--elecnor-naranja-hover);
-    }
-
-    .btn-primary:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
-    }
-
-    .btn-small {
-      background: var(--elecnor-azul);
-      color: #fff;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      margin-top: 4px;
-    }
-
-    .error-msg {
-      color: #dc3545;
-      font-size: 0.9rem;
-      margin-top: 8px;
-      text-align: center;
-      font-weight: 500;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #e2e8f0; }
+    .touch-canvas { touch-action: none; }
+    .pill-radio:checked + span { background-color: #0f172a; color: #fff; border-color: #0f172a; font-weight: 800; }
+    .pill-mal:checked + span { background-color: #dc2626; color: #fff; border-color: #b91c1c; font-weight: 800; }
+    .pill-bien:checked + span { background-color: #059669; color: #fff; border-color: #047857; font-weight: 800; }
+    input:disabled + span { opacity: 0.45; cursor: not-allowed; }
   </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col text-slate-900">
 
-  <!-- PANTALLA DE LOGIN -->
-  <div id="login-screen" class="container" style="max-width: 400px; margin-top: 40px;">
-    <div style="text-align: center; margin-bottom: 22px;">
-      <!-- Logo Elecnor integrado en alta calidad -->
-      <svg viewBox="0 0 320 135" width="210" style="display: block; margin: 0 auto 12px auto;" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 18,52 C 75,18 165,6 225,22 C 242,27 235,44 228,54 C 248,50 285,42 304,35 C 275,55 242,66 220,62 C 212,60 220,44 226,35 C 175,20 85,26 18,52 Z" fill="#F35000"/>
-        <text x="160" y="114" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="68" letter-spacing="2" fill="#002255" text-anchor="middle">elecnor</text>
-      </svg>
-      <h2>Acceso usuarios Elecnor</h2>
+  <!-- PANTALLA DE LOGIN CORPORATIVA ELECNOR -->
+  <div id="pantalla-login" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0b2254] via-[#0f172a] to-[#081636]">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border-t-4 border-[#f25c19] space-y-5">
+      <div class="text-center space-y-2">
+        <div class="inline-block bg-white px-4 py-2 rounded-xl">
+          <svg viewBox="0 0 240 85" class="h-12 w-auto mx-auto" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 32 C65 4, 155 4, 175 26 C182 34, 165 42, 162 34 C158 24, 95 22, 12 32 Z" fill="#f25c19"/>
+            <path d="M162 34 C168 48, 200 44, 228 24 C198 36, 175 36, 162 34 Z" fill="#f25c19"/>
+            <text x="10" y="74" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="48" letter-spacing="-1" fill="#0b2254">elecnor</text>
+          </svg>
+        </div>
+        <h2 class="text-lg font-black text-[#0b2254] uppercase tracking-tight">Acceso usuarios Elecnor</h2>
+        <p class="text-xs text-slate-500 font-medium">Introduce tus credenciales para acceder al Check-List</p>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-[10px] font-bold text-[#0b2254] uppercase mb-1">Usuario</label>
+          <input type="text" id="login-usuario" placeholder="Tu usuario asignado" class="w-full p-3 border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:border-[#f25c19] focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-[#0b2254] uppercase mb-1">Contraseña</label>
+          <input type="password" id="login-password" placeholder="••••••••" class="w-full p-3 border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:border-[#f25c19] focus:outline-none" onkeydown="if(event.key==='Enter') intentarLogin()">
+        </div>
+      </div>
+
+      <button type="button" id="btn-entrar-login" onclick="intentarLogin()" class="w-full bg-[#f25c19] hover:bg-[#d94d0e] text-white font-black py-3.5 rounded-xl text-sm uppercase tracking-wide shadow-lg transition">
+        Entrar
+      </button>
+
+      <p id="login-mensaje-error" class="hidden text-center text-xs font-bold text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200"></p>
     </div>
-    <div class="form-group">
-      <label>Usuario</label>
-      <input type="text" id="login-user" placeholder="Introduce tu usuario">
-    </div>
-    <div class="form-group">
-      <label>Contraseña</label>
-      <input type="password" id="login-pass" placeholder="••••••••">
-    </div>
-    <button class="btn-primary" id="btn-login" onclick="iniciarSesion()">Iniciar Sesión</button>
-    <p id="login-error" class="error-msg"></p>
   </div>
 
-  <!-- APLICACIÓN PRINCIPAL -->
-  <div id="app-content" class="container" style="display: none;">
-    <div class="header">
-      <div>
-        <h2>Checklist de Maquinaria</h2>
-        <small id="saludo-tecnico" style="color: #475569; font-weight: 600;"></small>
+  <!-- APLICACIÓN ORIGINAL INTACTA (OCULTA HASTA INICIAR SESIÓN) -->
+  <div id="contenedor-app-principal" class="hidden flex-col flex-1 pb-16">
+
+    <!-- CABECERA ELECNOR -->
+    <header class="bg-[#0f172a] text-white p-3.5 shadow-lg sticky top-0 z-30">
+      <div class="max-w-lg mx-auto flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <div class="bg-white px-2.5 py-1.5 rounded-xl shadow shrink-0">
+            <svg viewBox="0 0 240 85" class="h-6 w-auto" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 32 C65 4, 155 4, 175 26 C182 34, 165 42, 162 34 C158 24, 95 22, 12 32 Z" fill="#f25c19"/>
+              <path d="M162 34 C168 48, 200 44, 228 24 C198 36, 175 36, 162 34 Z" fill="#f25c19"/>
+              <text x="10" y="74" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="48" letter-spacing="-1" fill="#0b2254">elecnor</text>
+            </svg>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">PRL • ACCESO MAQUINARIA</p>
+            <h1 class="font-black text-sm leading-tight uppercase">Check-List Inspección Previa</h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span id="badge-conexion" class="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-600 text-white uppercase">
+            Online
+          </span>
+          <button type="button" onclick="cerrarSesion()" class="text-[10px] font-black px-2.5 py-1 rounded-full bg-slate-700 hover:bg-rose-600 text-white uppercase transition">
+            Salir
+          </button>
+        </div>
       </div>
-      <div style="text-align: right;">
-        <!-- Mini Logo Elecnor en cabecera -->
-        <svg viewBox="0 0 320 135" width="110" style="display: block; margin-bottom: 4px;" xmlns="http://www.w3.org/2000/svg">
-          <path d="M 18,52 C 75,18 165,6 225,22 C 242,27 235,44 228,54 C 248,50 285,42 304,35 C 275,55 242,66 220,62 C 212,60 220,44 226,35 C 175,20 85,26 18,52 Z" fill="#F35000"/>
-          <text x="160" y="114" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="68" letter-spacing="2" fill="#002255" text-anchor="middle">elecnor</text>
-        </svg>
-        <button class="btn-small" onclick="cerrarSesion()">Salir</button>
-      </div>
-    </div>
+    </header>
 
-    <!-- DATOS GENERALES Y CORREOS -->
-    <div class="form-group">
-      <label>Identificación de la Máquina / Matrícula</label>
-      <input type="text" id="maquina" placeholder="Ej. Plataforma Elevadora JLG-04" required>
-    </div>
-    <div class="form-group">
-      <label>Empresa Propietaria / Subcontrata (creará su carpeta en Drive)</label>
-      <input type="text" id="empresa-maquina" placeholder="Nombre exacto de la empresa" required>
-    </div>
-    <div class="form-group">
-      <label>Correo Empresa Propietaria (recibirá el PDF)</label>
-      <input type="email" id="email-empresa" placeholder="contacto@empresa.com" required>
-    </div>
-    <div class="form-group">
-      <label>Correo Técnico Prevención (copia del PDF)</label>
-      <input type="email" id="email-tecnico" placeholder="tecnico@elecnor.com" required>
-    </div>
+    <main class="max-w-lg mx-auto w-full p-3 space-y-4">
 
-    <!-- PUNTOS DE INSPECCIÓN -->
-    <h3>Puntos de Control</h3>
-    <div id="lista-preguntas"></div>
+      <!-- BANNER DE PENDIENTES DE SINCRONIZACIÓN OFFLINE -->
+      <section id="panel-pendientes" class="hidden bg-amber-100 border-2 border-amber-500 rounded-2xl p-3.5 shadow-sm space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-black text-amber-950">
+            📤 <span id="num-pendientes">0</span> checklist(s) pendientes de subir a Drive
+          </span>
+          <button type="button" id="btn-sincronizar-ahora" onclick="sincronizarPendientes()" class="bg-[#0f172a] text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase">
+            Subir Ahora
+          </button>
+        </div>
+        <p id="msg-sync-estado" class="text-[11px] font-semibold text-amber-900">
+          Se enviarán automáticamente en cuanto el teléfono recupere conexión a internet.
+        </p>
+      </section>
 
-    <!-- RESULTADO GLOBAL -->
-    <div class="form-group" style="margin-top: 20px;">
-      <label>Dictamen Final de la Máquina</label>
-      <select id="resultado-global">
-        <option value="APTA">APTA PARA TRABAJAR</option>
-        <option value="NO APTA">NO APTA (PARALIZADA)</option>
-      </select>
-    </div>
+      <!-- 1. SELECTOR DE TIPO DE MAQUINARIA -->
+      <section class="bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-amber-500">
+        <div class="bg-amber-500 text-slate-950 px-4 py-2.5 text-xs font-black uppercase tracking-wide">
+  1. Selecciona el Formato de Checklist según Maquinaria
+        </div>
+        <div class="p-4">
+          <select id="select-tipo-checklist" onchange="cambiarFormatoChecklist()" class="w-full p-3 border-2 border-slate-300 rounded-xl text-sm font-black text-slate-900 bg-slate-50 focus:border-amber-500 focus:outline-none">
+            <option value="GENERAL">1. Inspección Previa Maquinaria Acceso a Obra (General)</option>
+            <option value="CAMION_PLUMA">2. Camión Pluma / Grúa Autopropulsada</option>
+            <option value="HINCADORA">3. Hincadora / Perforadora</option>
+            <option value="MANIPULADOR">4. Manipulador Telescópico / Carretilla Elevadora</option>
+            <option value="MOV_TIERRAS">5. Movimiento de Tierras (Tractor, Retro, Motoniveladora, Pala, Rodillo)</option>
+          </select>
+        </div>
+      </section>
 
-    <!-- FIRMAS MANUALES -->
-    <div class="form-group">
-      <label>Firma Técnico de Prevención (Obligatoria cada vez)</label>
-      <canvas id="canvas-tecnico"></canvas>
-      <button type="button" class="btn-small" onclick="limpiarFirma('canvas-tecnico')">Borrar firma</button>
-    </div>
+      <!-- 2. DATOS GENERALES DE LA MÁQUINA, EMPRESA Y FOTO -->
+      <section class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+        <div class="bg-[#0f172a] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wide">
+  2. Información General y Datos de la Máquina
+        </div>
+        <div class="p-4 space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase">Fecha Inspección *</label>
+              <input type="date" id="c-fecha" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold bg-slate-50">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase">Hora *</label>
+              <input type="time" id="c-hora" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold bg-slate-50">
+            </div>
+          </div>
 
-    <div class="form-group">
-      <label>Firma Responsable Subcontrata / Máquina</label>
-      <canvas id="canvas-subcontrata"></canvas>
-      <button type="button" class="btn-small" onclick="limpiarFirma('canvas-subcontrata')">Borrar firma</button>
-    </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">Obra / Ubicación *</label>
+            <input type="text" id="c-ubicacion" value="FV HYBID GECAMA" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold bg-slate-50">
+          </div>
 
-    <button class="btn-primary" id="btn-enviar" onclick="enviarChecklist()">Generar PDF y Enviar por Correo</button>
-    <p id="estado-envio" style="text-align: center; font-weight: bold; margin-top: 10px;"></p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase">Empresa Subcontratista (Carpeta) *</label>
+              <select id="c-empresa-select" onchange="gestionarCambioEmpresa()" class="w-full mt-1 p-2 border-2 border-slate-300 rounded-lg font-bold uppercase bg-white">
+                <option value="">Cargando registro de empresas...</option>
+              </select>
+              <input type="text" id="c-empresa-otra" placeholder="Escribe nombre para registrar..." class="hidden w-full mt-1.5 p-2 border-2 border-amber-500 rounded-lg font-bold uppercase bg-amber-50">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase">Empresa Propietaria / Alquiladora</label>
+              <input type="text" id="c-alquiladora" placeholder="Si es alquilada..." class="w-full mt-1 p-2 border border-slate-300 rounded-lg bg-white">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase">Tipo de Vehículo / Modelo *</label>
+              <input type="text" id="c-maquina" placeholder="Ej. JCB 540-170 / Pauselli" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold bg-white">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase">Matrícula o Nº Serie *</label>
+              <input type="text" id="c-matricula" placeholder="Ej. 1234-BBB / SN-998" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-black uppercase bg-white">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">Conductor / Operador Habitual *</label>
+            <input type="text" id="c-conductor" placeholder="Apellidos y Nombre del operador" class="w-full mt-1 p-2 border border-slate-300 rounded-lg font-bold bg-white">
+          </div>
+
+          <!-- FOTOGRAFÍA DE LA MÁQUINA PARA ADJUNTAR AL PDF -->
+          <div class="pt-2 border-t border-slate-200">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Fotografía de la Máquina (Se incluirá en el PDF)</label>
+            <input type="file" id="input-foto-maquina" accept="image/*" capture="environment" onchange="cargarFotoMaquina(event)" class="hidden">
+            <button type="button" onclick="document.getElementById('input-foto-maquina').click()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-3 px-4 rounded-xl text-xs uppercase tracking-wide shadow flex items-center justify-center gap-2 transition">
+              <span class="text-base">📷</span>
+              <span id="texto-btn-foto">Hacer Foto a la Máquina</span>
+            </button>
+
+            <div id="contenedor-preview-foto" class="hidden mt-2.5 bg-slate-50 p-2.5 rounded-xl border border-slate-300 space-y-2 text-center">
+              <img id="img-preview-maquina" src="" alt="Vista previa máquina" class="max-h-48 mx-auto rounded-lg border border-slate-300 object-contain">
+              <div class="flex justify-center gap-3">
+                <button type="button" onclick="document.getElementById('input-foto-maquina').click()" class="text-[11px] font-bold text-blue-600 underline">
+                  Repetir foto
+                </button>
+                <button type="button" onclick="eliminarFotoMaquina()" class="text-[11px] font-bold text-rose-600 underline">
+                  Quitar foto
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. PUNTOS DE INSPECCIÓN DINÁMICOS -->
+      <section class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+        <div class="bg-[#0f172a] text-white px-4 py-2.5 flex justify-between items-center">
+          <span class="text-xs font-black uppercase tracking-wide" id="titulo-bloque-items">3. Puntos de Inspección</span>
+          <button type="button" onclick="marcarTodosPositivo()" class="bg-emerald-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded uppercase">
+            Marcar Todo OK
+          </button>
+        </div>
+        <div id="contenedor-items-checklist" class="divide-y divide-slate-200 px-4"></div>
+      </section>
+
+      <!-- 4. RESULTADO Y OBSERVACIONES GENERALES -->
+      <section id="seccion-dictamen" class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+        <div class="bg-[#0f172a] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wide">
+  4. Dictamen Final y Observaciones
+        </div>
+        <div class="p-4 space-y-3 text-xs">
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-[10px] font-bold text-slate-500 uppercase">Estado de la máquina para acceso a obra *</label>
+              <span id="contador-negativos" class="text-[10px] font-extrabold text-slate-500">Puntos negativos: 0</span>
+            </div>
+            <div id="aviso-auto-no-apto" class="hidden mb-2 p-2.5 rounded-lg bg-rose-100 border-2 border-rose-500 text-rose-950 text-[11px] font-black">
+              🔒 BLOQUEADO EN NO APTO: Se han marcado 3 o más puntos negativos. No se puede modificar manualmente.
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <label class="cursor-pointer text-center">
+                <input type="radio" id="radio-apto" name="dictamen_apto" value="APTO" checked class="hidden pill-bien">
+                <span class="block py-3 rounded-xl border-2 border-slate-300 bg-slate-50 text-slate-700 font-black text-sm">✅ APTO</span>
+              </label>
+              <label class="cursor-pointer text-center">
+                <input type="radio" id="radio-no-apto" name="dictamen_apto" value="NO APTO" class="hidden pill-mal">
+                <span class="block py-3 rounded-xl border-2 border-slate-300 bg-slate-50 text-slate-700 font-black text-sm">⛔ NO APTO</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">Observaciones Generales / Deficiencias detectadas</label>
+            <textarea id="c-obs-generales" rows="2" placeholder="Indicar observaciones adicionales..." class="w-full mt-1 p-2.5 border border-slate-300 rounded-lg bg-slate-50"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. FIRMAS DIGITALES -->
+      <section class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+        <div class="bg-[#0f172a] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wide">
+  5. Firmas (Responsable Subcontrata / Conductor y TPRL Elecnor)
+        </div>
+        <div class="p-4 space-y-4 text-xs">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+            <p class="font-black text-slate-800 uppercase" id="label-firmante-1">1. Responsable Subcontratista / Conductor *</p>
+            <input type="text" id="firma1-nombre" placeholder="Nombre y Apellidos *" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold">
+            <div class="flex justify-between text-[10px] font-bold text-slate-500">
+              <span>Firma con el dedo:</span>
+              <button type="button" onclick="limpiarCanvas('canvas-f1')" class="text-rose-600 underline">Borrar</button>
+            </div>
+            <canvas id="canvas-f1" class="w-full h-28 border-2 border-dashed border-slate-400 rounded-lg bg-white touch-canvas"></canvas>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+            <p class="font-black text-slate-800 uppercase" id="label-firmante-2">2. Revisado por Inspector / TPRL Elecnor *</p>
+            <input type="text" id="firma2-nombre" placeholder="Nombre y Apellidos Inspector Elecnor *" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold">
+            <div class="flex justify-between text-[10px] font-bold text-slate-500">
+              <span>Firma con el dedo:</span>
+              <button type="button" onclick="limpiarCanvas('canvas-f2')" class="text-rose-600 underline">Borrar</button>
+            </div>
+            <canvas id="canvas-f2" class="w-full h-28 border-2 border-dashed border-slate-400 rounded-lg bg-white touch-canvas"></canvas>
+          </div>
+
+          <button type="button" id="btn-generar-guardar" onclick="finalizarYGenerarPDF()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl text-sm uppercase tracking-wide shadow-lg transition">
+            📄 Generar PDF y Guardar en Carpeta Empresa
+          </button>
+
+          <div id="estado-guardado-box" class="hidden p-3.5 rounded-xl text-xs font-bold text-center space-y-2"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="wrapper-pdf" style="display:none; background:#fff; padding:12px;">
+    <div id="zona-render-pdf" style="width:740px; margin:0 auto; background:#fff; color:#111; padding:12px; font-family:Arial, Helvetica, sans-serif;"></div>
   </div>
 
   <script>
-    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzLjNj-rar2OgHXxUsqdwiATZJufp1g5EwR7Ry-u_6NdglFC38PWegU67KTQzb9CWcRQw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLjNj-rar2OgHXxUsqdwiATZJufp1g5EwR7Ry-u_6NdglFC38PWegU67KTQzb9CWcRQw/exec";
 
-    // Lista personalizable de puntos a revisar
-    const PREGUNTAS = [
-      "Estado general de neumáticos, orugas y estabilizadores",
-      "Funcionamiento correcto de mandos, parada de emergencia y claxon",
-      "Ausencia de fugas hidráulicas o de combustible",
-      "Señalización luminosa (rotativo), acústica de marcha atrás y pegatinas",
-      "Documentación al día (Marcado CE, manual en castellano, revisión periódica)"
-    ];
-
-    let respuestas = PREGUNTAS.map(p => ({ pregunta: p, estado: "APTO", observacion: "", fotoBase64: "" }));
-
-    // --- GESTIÓN DE SESIÓN ---
-    window.onload = function() {
-      const usuario = sessionStorage.getItem("tecnicoNombre");
-      renderizarPreguntas();
-      if (usuario) {
-        mostrarApp(usuario);
+    // --- CONTROL DE ACCESO (LOGIN ELECNOR) ---
+    function verificarSesionActiva() {
+      const sesion = sessionStorage.getItem("elecnor_usuario_activo");
+      if (sesion) {
+        desbloquearApp(sesion);
       }
-    };
+    }
 
-    function iniciarSesion() {
-      const usuario = document.getElementById("login-user").value.trim();
-      const password = document.getElementById("login-pass").value.trim();
-      const errorMsg = document.getElementById("login-error");
-      const btn = document.getElementById("btn-login");
+    async function intentarLogin() {
+      const usuario = document.getElementById("login-usuario").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+      const errBox = document.getElementById("login-mensaje-error");
+      const btn = document.getElementById("btn-entrar-login");
 
       if (!usuario || !password) {
-        errorMsg.textContent = "Rellena usuario y contraseña.";
+        errBox.textContent = "Introduce usuario y contraseña.";
+        errBox.classList.remove("hidden");
         return;
       }
 
       btn.disabled = true;
-      errorMsg.textContent = "Comprobando credenciales...";
+      btn.textContent = "Verificando...";
+      errBox.classList.add("hidden");
 
-      fetch(URL_APPS_SCRIPT, {
-        method: "POST",
-        body: JSON.stringify({ action: "login", usuario, password })
-      })
-      .then(r => r.json())
-      .then(res => {
-        btn.disabled = false;
-        if (res.status === "ok") {
-          sessionStorage.setItem("tecnicoNombre", res.nombre);
-          mostrarApp(res.nombre);
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "login", usuario: usuario, password: password })
+        });
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          const nombreMostrar = data.nombre || usuario;
+          sessionStorage.setItem("elecnor_usuario_activo", nombreMostrar);
+          desbloquearApp(nombreMostrar);
         } else {
-          errorMsg.textContent = res.message;
+          errBox.textContent = data.message || "Usuario o contraseña incorrectos.";
+          errBox.classList.remove("hidden");
         }
-      })
-      .catch(() => {
+      } catch (e) {
+        errBox.textContent = "Error de conexión. Comprueba que tienes cobertura e inténtalo de nuevo.";
+        errBox.classList.remove("hidden");
+      } finally {
         btn.disabled = false;
-        errorMsg.textContent = "Error de conexión con el servidor.";
-      });
+        btn.textContent = "Entrar";
+      }
     }
 
-    function mostrarApp(nombre) {
-      document.getElementById("login-screen").style.display = "none";
-      document.getElementById("app-content").style.display = "block";
-      document.getElementById("saludo-tecnico").textContent = "Técnico: " + nombre;
-      // Inicializar paneles de firma justo cuando ya son visibles para evitar desplazamientos del trazo
-      inicializarCanvas("canvas-tecnico");
-      inicializarCanvas("canvas-subcontrata");
+    function desbloquearApp(nombreInspector) {
+      document.getElementById("pantalla-login").classList.add("hidden");
+      const app = document.getElementById("contenedor-app-principal");
+      app.classList.remove("hidden");
+      app.classList.add("flex");
+
+      const campoInspector = document.getElementById("firma2-nombre");
+      if (campoInspector && !campoInspector.value) {
+        campoInspector.value = nombreInspector;
+      }
+
+      setTimeout(() => {
+        inicializarCanvas("canvas-f1");
+        inicializarCanvas("canvas-f2");
+      }, 100);
     }
 
     function cerrarSesion() {
-      sessionStorage.removeItem("tecnicoNombre");
+      sessionStorage.removeItem("elecnor_usuario_activo");
       location.reload();
     }
 
-    // --- RENDERIZADO DE PREGUNTAS Y FOTOS DE FALLO ---
-    function renderizarPreguntas() {
-      const contenedor = document.getElementById("lista-preguntas");
-      contenedor.innerHTML = "";
-      PREGUNTAS.forEach((texto, idx) => {
-        contenedor.innerHTML += `
-          <div class="check-item">
-            <div class="check-header">
-              <span style="font-size: 0.95rem;"><strong>${idx + 1}.</strong> ${texto}</span>
-              <div class="btn-group">
-                <button type="button" id="btn-apto-${idx}" class="btn-estado apto active" onclick="marcarEstado(${idx}, 'APTO')">APTO</button>
-                <button type="button" id="btn-noapto-${idx}" class="btn-estado no-apto" onclick="marcarEstado(${idx}, 'NO APTO')">NO APTO</button>
-              </div>
-            </div>
-            <div id="fallo-box-${idx}" class="fallo-box">
-              <input type="text" placeholder="Describe la anomalía detectada..." oninput="respuestas[${idx}].observacion = this.value">
-              <label style="margin-top: 8px; font-size: 0.85rem; color: #dc3545;">Adjuntar foto del fallo:</label>
-              <input type="file" accept="image/*" capture="environment" onchange="procesarFoto(event, ${idx})">
-              <img id="preview-${idx}" class="preview-img">
-            </div>
-          </div>
-        `;
+    // --- CÓDIGO ORIGINAL DE LA APLICACIÓN ---
+    const EMPRESAS_BASE = ["ELECNOR", "BARAHONA"];
+    let dictamenBloqueado = false;
+    let fotoMaquinaDataUrl = "";
+
+    const DB_NAME = "ElecnorChecklistsOfflineDB";
+    const STORE_NAME = "cola_envios";
+
+    function abrirDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+          }
+        };
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
       });
     }
 
-    function marcarEstado(idx, estado) {
-      respuestas[idx].estado = estado;
-      document.getElementById(`btn-apto-${idx}`).classList.toggle("active", estado === "APTO");
-      document.getElementById(`btn-noapto-${idx}`).classList.toggle("active", estado === "NO APTO");
-      document.getElementById(`fallo-box-${idx}`).style.display = estado === "NO APTO" ? "block" : "none";
-      if (estado === "NO APTO") document.getElementById("resultado-global").value = "NO APTA";
+    async function guardarEnColaOffline(payload) {
+      const db = await abrirDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).add(payload);
+        tx.oncomplete = () => resolve();
+        tx.onerror = e => reject(e.target.error);
+      });
     }
 
-    function procesarFoto(event, idx) {
-      const file = event.target.files[0];
+    async function obtenerTodosPendientes() {
+      const db = await abrirDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const req = tx.objectStore(STORE_NAME).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function borrarDeColaOffline(id) {
+      const db = await abrirDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function actualizarPanelPendientes() {
+      const pendientes = await obtenerTodosPendientes();
+      const panel = document.getElementById("panel-pendientes");
+      const num = document.getElementById("num-pendientes");
+      if (pendientes.length > 0) {
+        num.textContent = pendientes.length;
+        panel.classList.remove("hidden");
+      } else {
+        panel.classList.add("hidden");
+      }
+    }
+
+    async function sincronizarPendientes() {
+      if (!navigator.onLine) {
+        document.getElementById("msg-sync-estado").textContent = "Sigues sin conexión a internet. Inténtalo cuando tengas cobertura.";
+        return;
+      }
+      const pendientes = await obtenerTodosPendientes();
+      if (pendientes.length === 0) return;
+
+      const btn = document.getElementById("btn-sincronizar-ahora");
+      const msg = document.getElementById("msg-sync-estado");
+      btn.disabled = true;
+      btn.textContent = "Subiendo...";
+      msg.textContent = "Subiendo checklists guardados en modo sin conexión...";
+
+      let subidos = 0;
+      for (const item of pendientes) {
+        try {
+          const { id, ...datosEnviar } = item;
+          await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(datosEnviar)
+          });
+          await borrarDeColaOffline(id);
+          subidos++;
+        } catch (err) {
+          break;
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Subir Ahora";
+      await actualizarPanelPendientes();
+
+      if (subidos > 0) {
+        alert(`✅ Sincronización completada: ${subidos} checklist(s) subidos correctamente a Google Drive y Google Sheets.`);
+      }
+    }
+
+    function actualizarEstadoRedUI() {
+      const badge = document.getElementById("badge-conexion");
+      if (navigator.onLine) {
+        badge.textContent = "Online";
+        badge.className = "text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-600 text-white uppercase";
+        sincronizarPendientes();
+        cargarRegistroEmpresas();
+      } else {
+        badge.textContent = "Sin Red";
+        badge.className = "text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 uppercase";
+      }
+    }
+
+    window.addEventListener("online", actualizarEstadoRedUI);
+    window.addEventListener("offline", actualizarEstadoRedUI);
+
+    const FORMATOS_CHECKLIST = {
+      GENERAL: {
+        titulo: "INSPECCIÓN PREVIA DE MAQUINARIA ACCESO A OBRA",
+        tipoNombreArchivo: "INSPECCION_PREVIA_GENERAL",
+        opciones: ["BIEN", "MAL", "N/A"],
+        positivo: "BIEN",
+        negativo: "MAL",
+        firmante1: "Conductor / Responsable Subcontrata",
+        firmante2: "Inspector / TPRL Elecnor",
+        items: [
+          { texto: "Sistema de dirección" },
+          { texto: "Sistema de frenos" },
+          { texto: "Alarma de retroceso o marcha atrás" },
+          { texto: "Cinturón de seguridad" },
+          { texto: "Neumáticos" },
+          { texto: "Espejos" },
+          { texto: "Rotativo" },
+          { texto: "Cabina antivuelco" },
+          { texto: "Luces delanteras y traseras" },
+          { texto: "Parabrisas y limpiaparabrisas" },
+          { texto: "Claxon" },
+          { texto: "Extintor" },
+          { texto: "Vidrios ventanas" },
+          { texto: "Suspensión" },
+          { texto: "Botiquín" },
+          { texto: "Freno de emergencia" },
+          { texto: "Aire acondicionado en cabina" },
+          { texto: "Manual de instrucciones" }
+        ]
+      },
+      CAMION_PLUMA: {
+        titulo: "INSTRUCCIÓN TÉCNICA DE SEGURIDAD: CHECK-LIST INICIAL CAMIÓN PLUMA - GRÚAS MÓVILES",
+        tipoNombreArchivo: "CAMION_PLUMA_GRUA",
+        opciones: ["SI", "NO", "N/A"],
+        positivo: "SI",
+        negativo: "NO",
+        firmante1: "Responsable (Subcontratista)",
+        firmante2: "Revisado por TPRL Elecnor",
+        items: [
+          { texto: "(1) Cable — Comprobar según Normas de uso y trabajo de cables y poleas" },
+          { texto: "(2) Tambor — Verificar que no tiene ranuras ni los bordes en mal estado" },
+          { texto: "(3) Poleas — Comprobar según Normas de uso y trabajo de cables y poleas" },
+          { texto: "(4) Gancho — Comprobar la existencia de cierre de seguridad" },
+          { texto: "(5) Final de carrera — Verificar correcto funcionamiento" },
+          { texto: "(6) Frenos camión / giro — Verificar correcto funcionamiento" },
+          { texto: "(7) Niveles horizontabilidad — Verificar correcto funcionamiento" },
+          { texto: "(8) Fugas hidráulicas estabilizadores — Comprobar ausencia de fugas" },
+          { texto: "(9) Tablas de carga — Verificar existencia en cabina" },
+          { texto: "(10) Bocina — Verificar correcto funcionamiento" },
+          { texto: "(11) Luces — Comprobar que no están fundidas o rotas" },
+          { texto: "(12) Extintor — Indicar existencia y estado" }
+        ]
+      },
+      HINCADORA: {
+        titulo: "CHECK-LIST INICIAL HINCADORA / PERFORADORA",
+        tipoNombreArchivo: "HINCADORA_PERFORADORA",
+        opciones: ["SI", "NO", "N/A"],
+        positivo: "SI",
+        negativo: "NO",
+        firmante1: "Responsable (Subcontratista)",
+        firmante2: "Revisado por TPRL Elecnor",
+        items: [
+          { texto: "Estado de tornillería" },
+          { texto: "Estado general equipo (golpes, abolladuras)" },
+          { texto: "Estado de mangueras" },
+          { texto: "Niveles aceite" },
+          { texto: "Nivel combustible" },
+          { texto: "Nivel refrigerante" },
+          { texto: "Fugas visibles de aceite o combustible" },
+          { texto: "Batería" },
+          { texto: "Parada de emergencia (comprobar funcionamiento)" },
+          { texto: "Cables o cadenas sujeción martillo, bulones" },
+          { texto: "Orugas y rodillos" },
+          { texto: "Engrase de guías carro" },
+          { texto: "Faros de trabajo" },
+          { texto: "Zumbador acústico" },
+          { texto: "Luz rotativa" },
+          { texto: "Extintor" },
+          { texto: "Botiquín (accesible o presente en obra)" },
+          { texto: "Orden y limpieza" }
+        ]
+      },
+      MANIPULADOR: {
+        titulo: "CHECK-LIST INICIAL MANIPULADOR TELESCÓPICO / CARRETILLA ELEVADORA",
+        tipoNombreArchivo: "MANIPULADOR_TELESCOPICO",
+        opciones: ["BIEN", "MAL", "N/A"],
+        positivo: "BIEN",
+        negativo: "MAL",
+        firmante1: "Responsable (Subcontratista)",
+        firmante2: "Revisado por TPRL Elecnor",
+        items: [
+          { texto: "ITV" },
+          { texto: "Niveles aceite" },
+          { texto: "Nivel refrigerante" },
+          { texto: "Nivel líquido frenos" },
+          { texto: "Fugas visibles de aceite o combustible" },
+          { texto: "Batería" },
+          { texto: "Luces (funcionamiento, estado)" },
+          { texto: "Luz marcha atrás" },
+          { texto: "Luces niebla" },
+          { texto: "Intermitentes" },
+          { texto: "Luces interiores" },
+          { texto: "Puertas (ajuste, cierre, lunas)" },
+          { texto: "Sistema hidráulico (botellas, bomba, mangueras, etc.)" },
+          { texto: "Estado de las uñas (Deformación, Roturas, etc.)" },
+          { texto: "Estabilizadores" },
+          { texto: "Aparatos de seguridad (Rango altura de carga, indicador desnivel, paro automático levante, antibloqueo)" },
+          { texto: "Estado general vehículo (golpes, abolladuras)" },
+          { texto: "Retrovisores (interior, exteriores)" },
+          { texto: "Limpiaparabrisas delantero / trasero" },
+          { texto: "Pluma (Pluma, brazo giratorio, sist. comando)" },
+          { texto: "Cinturones de seguridad (enganches, bloqueo)" },
+          { texto: "Extintor" },
+          { texto: "Botiquín" },
+          { texto: "Ruedas (presión, estado, dibujo)" },
+          { texto: "Matrícula (estado, limpieza, visibilidad)" }
+        ]
+      },
+      MOV_TIERRAS: {
+        titulo: "CHECK-LIST INICIAL TRACTOR, RETROEXCAVADORA, MOTONIVELADORA, PALA CARGADORA Y RODILLO",
+        tipoNombreArchivo: "MOVIMIENTO_TIERRAS",
+        opciones: ["SI", "NO", "N/A"],
+        positivo: "SI",
+        negativo: "NO",
+        firmante1: "Responsable (Subcontratista)",
+        firmante2: "Revisado por TPRL Elecnor",
+        items: [
+          { texto: "Sistema de luces en correcto funcionamiento (delanteras, traseras...)" },
+          { texto: "Rotativo en buen estado" },
+          { texto: "Sistema de frenos en correcto funcionamiento (estacionamiento, servicio...)" },
+          { texto: "Fugas de aceite" },
+          { texto: "Sistema de dirección" },
+          { texto: "Cuñas / Conos de señalización disponibles" },
+          { texto: "Alarma de retroceso" },
+          { texto: "Espejos retrovisores sin grietas" },
+          { texto: "Extintor revisado" },
+          { texto: "Kit antiderrame" },
+          { texto: "Funcionamiento de accesorios adicionales (limpiaparabrisas, calefacción...)" },
+          { texto: "Aire acondicionado en cabina" },
+          { texto: "Cinturón de seguridad en buen estado" },
+          { texto: "Orden y limpieza en el habitáculo" },
+          { texto: "Jaula / Cabina antivuelco sin daños" },
+          { texto: "Freno de emergencia en buen estado" },
+          { texto: "Las etiquetas de advertencia y los manuales de los operadores están presentes y legibles" }
+        ]
+      }
+    };
+
+    const canvasEstado = {};
+
+    function cargarFotoMaquina(event) {
+      const file = event.target.files?.[0];
       if (!file) return;
+
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = e => {
         const img = new Image();
-        img.onload = function() {
+        img.onload = () => {
+          const maxAncho = 800;
+          const scale = Math.min(1, maxAncho / img.width);
           const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 800;
-          const scale = MAX_WIDTH / img.width;
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          const comprimida = canvas.toDataURL("image/jpeg", 0.7);
-          respuestas[idx].fotoBase64 = comprimida;
-          const preview = document.getElementById(`preview-${idx}`);
-          preview.src = comprimida;
-          preview.style.display = "block";
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          fotoMaquinaDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+          document.getElementById("img-preview-maquina").src = fotoMaquinaDataUrl;
+          document.getElementById("contenedor-preview-foto").classList.remove("hidden");
+          document.getElementById("texto-btn-foto").textContent = "Foto Adjuntada (Cambiar)";
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    // --- PANELES DE FIRMA TÁCTIL ---
-    function inicializarCanvas(id) {
-      const canvas = document.getElementById(id);
-      const ctx = canvas.getContext("2d");
-      let dibujando = false;
-
-      function ajustarTamano() {
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-        ctx.lineWidth = 2;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "#000";
-      }
-      ajustarTamano();
-
-      const getPos = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-      };
-
-      const start = (e) => { dibujando = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
-      const move = (e) => { if (!dibujando) return; e.preventDefault(); const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
-      const end = () => { dibujando = false; };
-
-      canvas.addEventListener("mousedown", start);
-      canvas.addEventListener("mousemove", move);
-      window.addEventListener("mouseup", end);
-      canvas.addEventListener("touchstart", start, { passive: false });
-      canvas.addEventListener("touchmove", move, { passive: false });
-      canvas.addEventListener("touchend", end);
+    function eliminarFotoMaquina() {
+      fotoMaquinaDataUrl = "";
+      document.getElementById("input-foto-maquina").value = "";
+      document.getElementById("img-preview-maquina").src = "";
+      document.getElementById("contenedor-preview-foto").classList.add("hidden");
+      document.getElementById("texto-btn-foto").textContent = "Hacer Foto a la Máquina";
     }
 
-    function limpiarFirma(id) {
-      const canvas = document.getElementById(id);
-      canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    function renderizarSelectEmpresas(lista) {
+      const sel = document.getElementById("c-empresa-select");
+      const guardadasLocal = JSON.parse(localStorage.getItem("elecnor_empresas_reg") || "[]");
+      const unicas = Array.from(new Set([...EMPRESAS_BASE, ...guardadasLocal, ...lista])).sort();
+
+      sel.innerHTML = [
+        `<option value="">-- Selecciona Empresa --</option>`,
+        ...unicas.map(emp => `<option value="${emp}">${emp}</option>`),
+        `<option value="__OTRA__">+ REGISTRAR NUEVA EMPRESA...</option>`
+      ].join("");
     }
 
-    // --- ENVÍO FINAL ---
-    function enviarChecklist() {
-      const maquina = document.getElementById("maquina").value.trim();
-      const empresaMaquina = document.getElementById("empresa-maquina").value.trim();
-      const emailEmpresa = document.getElementById("email-empresa").value.trim();
-      const emailTecnico = document.getElementById("email-tecnico").value.trim();
-      const apto = document.getElementById("resultado-global").value;
-      const estadoEnvio = document.getElementById("estado-envio");
-      const btn = document.getElementById("btn-enviar");
-
-      if (!maquina || !empresaMaquina || !emailEmpresa) {
-        alert("Por favor, completa los datos de la máquina y el correo de la empresa.");
-        return;
-      }
-
-      btn.disabled = true;
-      estadoEnvio.style.color = "#002255";
-      estadoEnvio.textContent = "Generando PDF, subiendo fotos y enviando correos...";
-
-      const payload = {
-        action: "submitChecklist",
-        fecha: new Date().toLocaleDateString("es-ES"),
-        tecnico: sessionStorage.getItem("tecnicoNombre"),
-        maquina,
-        empresaMaquina,
-        emailEmpresa,
-        emailTecnico,
-        apto,
-        items: respuestas,
-        firmaTecnico: document.getElementById("canvas-tecnico").toDataURL("image/png"),
-        firmaSubcontrata: document.getElementById("canvas-subcontrata").toDataURL("image/png")
-      };
-
-      fetch(URL_APPS_SCRIPT, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(res => {
-        btn.disabled = false;
-        if (res.status === "ok") {
-          estadoEnvio.style.color = "green";
-          estadoEnvio.innerHTML = `¡Informe enviado correctamente! <a href="${res.pdfUrl}" target="_blank">Ver PDF</a>`;
-        } else {
-          estadoEnvio.style.color = "red";
-          estadoEnvio.textContent = "Error: " + res.message;
+    async function cargarRegistroEmpresas() {
+      renderizarSelectEmpresas([]);
+      if (!navigator.onLine) return;
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const json = await res.json();
+        if (json && Array.isArray(json.empresas)) {
+          localStorage.setItem("elecnor_empresas_reg", JSON.stringify(json.empresas));
+          renderizarSelectEmpresas(json.empresas);
         }
-      })
-      .catch(() => {
+      } catch (e) {}
+    }
+
+    function gestionarCambioEmpresa() {
+      const sel = document.getElementById("c-empresa-select");
+      const inputOtra = document.getElementById("c-empresa-otra");
+      if (sel.value === "__OTRA__") {
+        inputOtra.classList.remove("hidden");
+        inputOtra.focus();
+      } else {
+        inputOtra.classList.add("hidden");
+        inputOtra.value = "";
+      }
+    }
+
+    function obtenerEmpresaSeleccionada() {
+      const sel = document.getElementById("c-empresa-select").value;
+      if (sel === "__OTRA__") {
+        const nueva = document.getElementById("c-empresa-otra").value.trim().toUpperCase();
+        if (nueva) {
+          const prev = JSON.parse(localStorage.getItem("elecnor_empresas_reg") || "[]");
+          if (!prev.includes(nueva)) {
+            prev.push(nueva);
+            localStorage.setItem("elecnor_empresas_reg", JSON.stringify(prev));
+          }
+        }
+        return nueva;
+      }
+      return sel.trim().toUpperCase();
+    }
+
+    function inicializarCanvas(id) {
+      const c = document.getElementById(id);
+      if (!c) return;
+      const rect = c.getBoundingClientRect();
+      c.width = rect.width || 320;
+      c.height = rect.height || 112;
+      const ctx = c.getContext("2d");
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#0f172a";
+      canvasEstado[id] = { dibujando: false, firmado: false };
+
+      const pos = e => {
+        const r = c.getBoundingClientRect();
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: cx - r.left, y: cy - r.top };
+      };
+
+      c.addEventListener("mousedown", e => { canvasEstado[id].dibujando = true; canvasEstado[id].firmado = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+      c.addEventListener("mousemove", e => { if (!canvasEstado[id].dibujando) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+      c.addEventListener("mouseup", () => canvasEstado[id].dibujando = false);
+      c.addEventListener("touchstart", e => { e.preventDefault(); canvasEstado[id].dibujando = true; canvasEstado[id].firmado = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+      c.addEventListener("touchmove", e => { e.preventDefault(); if (!canvasEstado[id].dibujando) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+      c.addEventListener("touchend", () => canvasEstado[id].dibujando = false);
+    }
+
+    function limpiarCanvas(id) {
+      const c = document.getElementById(id);
+      if (!c) return;
+      c.getContext("2d").clearRect(0, 0, c.width, c.height);
+      if (canvasEstado[id]) canvasEstado[id].firmado = false;
+    }
+
+    function limpiarTextoArchivo(str) {
+      return String(str || "")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+    }
+
+    function cambiarFormatoChecklist() {
+      const key = document.getElementById("select-tipo-checklist").value;
+      const cfg = FORMATOS_CHECKLIST[key];
+      document.getElementById("titulo-bloque-items").textContent = `3. Puntos de Inspección (${cfg.items.length})`;
+      document.getElementById("label-firmante-1").textContent = `1. ${cfg.firmante1} *`;
+      document.getElementById("label-firmante-2").textContent = `2. ${cfg.firmante2} *`;
+
+      const cont = document.getElementById("contenedor-items-checklist");
+      cont.innerHTML = cfg.items.map((item, idx) => `
+        <div class="py-3 space-y-2">
+          <p class="text-xs font-bold text-slate-800 leading-snug">${idx + 1}. ${item.texto}</p>
+          <div class="grid grid-cols-3 gap-2">
+            ${cfg.opciones.map(op => {
+              const cls = op === cfg.positivo ? "pill-bien" : op === cfg.negativo ? "pill-mal" : "pill-radio";
+              return `
+                <label class="cursor-pointer text-center">
+                  <input type="radio" name="item_${idx}" value="${op}" ${op === cfg.positivo ? "checked" : ""} onchange="evaluarDictamenAutomatico()" class="hidden ${cls}">
+                  <span class="block py-1.5 text-[11px] font-bold rounded-lg border border-slate-300 bg-slate-50 text-slate-600 transition">${op}</span>
+                </label>
+              `;
+            }).join("")}
+          </div>
+          <input type="text" id="obs_item_${idx}" placeholder="Observaciones del punto (opcional)..." class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[11px] bg-slate-50">
+        </div>
+      `).join("");
+
+      evaluarDictamenAutomatico();
+    }
+
+    function evaluarDictamenAutomatico() {
+      const key = document.getElementById("select-tipo-checklist").value;
+      const cfg = FORMATOS_CHECKLIST[key];
+      let negativos = 0;
+
+      cfg.items.forEach((_, idx) => {
+        const val = document.querySelector(`input[name="item_${idx}"]:checked`)?.value;
+        if (val === cfg.negativo) negativos++;
+      });
+
+      const contador = document.getElementById("contador-negativos");
+      const aviso = document.getElementById("aviso-auto-no-apto");
+      const radioApto = document.getElementById("radio-apto");
+      const radioNoApto = document.getElementById("radio-no-apto");
+
+      contador.textContent = `Puntos negativos (${cfg.negativo}): ${negativos}`;
+      contador.className = negativos >= 3
+        ? "text-[10px] font-black text-rose-600"
+        : "text-[10px] font-extrabold text-slate-500";
+
+      if (negativos >= 3) {
+        radioNoApto.checked = true;
+        radioApto.disabled = true;
+        radioNoApto.disabled = true;
+        aviso.classList.remove("hidden");
+        dictamenBloqueado = true;
+      } else {
+        radioApto.disabled = false;
+        radioNoApto.disabled = false;
+        aviso.classList.add("hidden");
+        if (dictamenBloqueado) {
+          radioApto.checked = true;
+          dictamenBloqueado = false;
+        }
+      }
+    }
+
+    function marcarTodosPositivo() {
+      const key = document.getElementById("select-tipo-checklist").value;
+      const cfg = FORMATOS_CHECKLIST[key];
+      cfg.items.forEach((_, idx) => {
+        const el = document.querySelector(`input[name="item_${idx}"][value="${cfg.positivo}"]`);
+        if (el) el.checked = true;
+      });
+      evaluarDictamenAutomatico();
+    }
+
+    async function finalizarYGenerarPDF() {
+      const key = document.getElementById("select-tipo-checklist").value;
+      const cfg = FORMATOS_CHECKLIST[key];
+
+      const fecha = document.getElementById("c-fecha").value;
+      const hora = document.getElementById("c-hora").value;
+      const ubicacion = document.getElementById("c-ubicacion").value.trim();
+      const empresa = obtenerEmpresaSeleccionada();
+      const alquiladora = document.getElementById("c-alquiladora").value.trim();
+      const maquina = document.getElementById("c-maquina").value.trim();
+      const matricula = document.getElementById("c-matricula").value.trim().toUpperCase();
+      const conductor = document.getElementById("c-conductor").value.trim();
+      const obsGenerales = document.getElementById("c-obs-generales").value.trim();
+      const resultado = document.getElementById("radio-no-apto").checked ? "NO APTO" : "APTO";
+
+      const f1Nombre = document.getElementById("firma1-nombre").value.trim();
+      const f2Nombre = document.getElementById("firma2-nombre").value.trim();
+
+      if (!empresa || !maquina || !matricula || !conductor) {
+        return alert("Completa los datos obligatorios de la máquina: Empresa, Tipo/Modelo, Matrícula y Conductor.");
+      }
+      if (!f1Nombre || !canvasEstado["canvas-f1"]?.firmado) {
+        return alert(`Falta el nombre o la firma de: ${cfg.firmante1}`);
+      }
+      if (!f2Nombre || !canvasEstado["canvas-f2"]?.firmado) {
+        return alert(`Falta el nombre o la firma de: ${cfg.firmante2}`);
+      }
+
+      const imgF1 = document.getElementById("canvas-f1").toDataURL("image/png");
+      const imgF2 = document.getElementById("canvas-f2").toDataURL("image/png");
+
+      const filasHTML = cfg.items.map((item, idx) => {
+        const val = document.querySelector(`input[name="item_${idx}"]:checked`)?.value || "N/A";
+        const obs = document.getElementById(`obs_item_${idx}`).value.trim();
+        return `
+          <tr>
+            <td style="border:1px solid #444; padding:3px 5px; font-size:9.5px;">${item.texto}</td>
+            <td style="border:1px solid #444; padding:3px; text-align:center; font-weight:bold; font-size:9.5px;">${val === cfg.opciones[0] ? "X" : ""}</td>
+            <td style="border:1px solid #444; padding:3px; text-align:center; font-weight:bold; font-size:9.5px; color:#b91c1c;">${val === cfg.opciones[1] ? "X" : ""}</td>
+            <td style="border:1px solid #444; padding:3px; text-align:center; font-weight:bold; font-size:9.5px;">${val === cfg.opciones[2] ? "X" : ""}</td>
+            <td style="border:1px solid #444; padding:3px 5px; font-size:9px;">${obs}</td>
+          </tr>
+        `;
+      }).join("");
+
+      const bloqueFotoHTML = fotoMaquinaDataUrl ? `
+        <table style="width:100%; border-collapse:collapse; margin-bottom:6px; font-size:9.5px;">
+          <tr style="background:#0b2254; color:#fff;">
+            <th style="border:1px solid #444; padding:4px 6px; text-align:left;">REGISTRO FOTOGRÁFICO DE LA MÁQUINA INSPECCIONADA</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #444; padding:6px; text-align:center;">
+              <img src="${fotoMaquinaDataUrl}" style="max-height:175px; max-width:95%; margin:0 auto; border:1px solid #ccc;">
+            </td>
+          </tr>
+        </table>
+      ` : "";
+
+      const wrapperPdf = document.getElementById("wrapper-pdf");
+      const zonaPdf = document.getElementById("zona-render-pdf");
+      zonaPdf.innerHTML = `
+        <div style="border:2px solid #0b2254; padding:8px 10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:20px; font-weight:900; color:#0b2254; letter-spacing:-0.5px;">elecnor</div>
+            <div style="font-size:8.5px; color:#555;">SEGURIDAD Y SALUD • CONTROL DE MAQUINARIA</div>
+          </div>
+          <div style="text-align:center; max-width:410px;">
+            <div style="font-size:11px; font-weight:900; color:#0b2254;">${cfg.titulo}</div>
+          </div>
+          <div style="text-align:right;">
+            <span style="background:${resultado === 'APTO' ? '#059669' : '#dc2626'}; color:#fff; font-weight:bold; padding:4px 8px; border-radius:4px; font-size:10px;">
+              ${resultado}
+            </span>
+          </div>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:6px; font-size:9.5px;">
+          <tr>
+            <th colspan="4" style="background:#0b2254; color:#fff; padding:4px 6px; text-align:left; border:1px solid #444;">INFORMACIÓN GENERAL Y DE LA MÁQUINA</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Empresa:</strong> ${empresa}</td>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Propietaria / Alq.:</strong> ${alquiladora || "Propia"}</td>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Fecha:</strong> ${fecha}</td>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Hora:</strong> ${hora}</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Tipo / Modelo:</strong> ${maquina}</td>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Matrícula / Nº Serie:</strong> ${matricula}</td>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Conductor / Operador:</strong> ${conductor}</td>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>Obra / Ubicación:</strong> ${ubicacion}</td>
+          </tr>
+        </table>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:6px;">
+          <thead>
+            <tr style="background:#0b2254; color:#fff; font-size:9.5px;">
+              <th style="border:1px solid #444; padding:4px 6px; text-align:left; width:46%;">DESCRIPCIÓN DEL PUNTO INSPECCIONADO</th>
+              <th style="border:1px solid #444; padding:4px; text-align:center; width:7%;">${cfg.opciones[0]}</th>
+              <th style="border:1px solid #444; padding:4px; text-align:center; width:7%;">${cfg.opciones[1]}</th>
+              <th style="border:1px solid #444; padding:4px; text-align:center; width:7%;">${cfg.opciones[2]}</th>
+              <th style="border:1px solid #444; padding:4px 6px; text-align:left; width:33%;">OBSERVACIONES</th>
+            </tr>
+          </thead>
+          <tbody>${filasHTML}</tbody>
+        </table>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:6px; font-size:9.5px;">
+          <tr>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>DICTAMEN FINAL:</strong> El estado de la máquina se considera <strong>${resultado}</strong> para su acceso y uso en obra.</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #444; padding:4px 6px;"><strong>OBSERVACIONES GENERALES:</strong> ${obsGenerales || "Sin observaciones."}</td>
+          </tr>
+        </table>
+
+        ${bloqueFotoHTML}
+
+        <table style="width:100%; border-collapse:collapse; font-size:9.5px;">
+          <tr style="background:#0b2254; color:#fff;">
+            <th style="border:1px solid #444; padding:4px 6px; width:50%;">${cfg.firmante1}</th>
+            <th style="border:1px solid #444; padding:4px 6px; width:50%;">${cfg.firmante2}</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #444; padding:5px; text-align:center;">
+              <div style="font-weight:bold; margin-bottom:3px;">${f1Nombre}</div>
+              <img src="${imgF1}" style="height:44px; margin:0 auto;">
+              <div style="font-size:8.5px; color:#555; margin-top:3px;">Fecha: ${fecha}</div>
+            </td>
+            <td style="border:1px solid #444; padding:5px; text-align:center;">
+              <div style="font-weight:bold; margin-bottom:3px;">${f2Nombre}</div>
+              <img src="${imgF2}" style="height:44px; margin:0 auto;">
+              <div style="font-size:8.5px; color:#555; margin-top:3px;">Fecha: ${fecha}</div>
+            </td>
+          </tr>
+        </table>
+      `;
+
+      const btn = document.getElementById("btn-generar-guardar");
+      const box = document.getElementById("estado-guardado-box");
+      btn.disabled = true;
+      btn.textContent = "⏳ Generando PDF...";
+
+      const empresaLimpia = limpiarTextoArchivo(empresa);
+      const tipoMaqLimpio = cfg.tipoNombreArchivo;
+      const nombreArchivo = `${fecha}_${empresaLimpia}_${tipoMaqLimpio}.pdf`;
+
+      try {
+        wrapperPdf.style.display = "block";
+        await new Promise(r => setTimeout(r, 150));
+
+        const opcionesPdf = {
+          margin: 5,
+          filename: nombreArchivo,
+          image: { type: "jpeg", quality: 0.96 },
+          html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        };
+
+        const worker = html2pdf().set(opcionesPdf).from(zonaPdf);
+        const pdfDataUri = await worker.outputPdf("datauristring");
+        await worker.save();
+
+        wrapperPdf.style.display = "none";
+
+        const base64Clean = pdfDataUri.split(",")[1];
+        const payloadEnvio = {
+          tipoTitulo: cfg.titulo,
+          nombreArchivo: nombreArchivo,
+          empresa: empresa,
+          maquina: maquina,
+          matricula: matricula,
+          conductor: conductor,
+          ubicacion: ubicacion,
+          resultado: resultado,
+          inspector: f2Nombre,
+          pdfBase64: base64Clean
+        };
+
+        let enviadoOnline = false;
+        if (navigator.onLine && SCRIPT_URL && SCRIPT_URL.startsWith("http")) {
+          try {
+            await fetch(SCRIPT_URL, {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify(payloadEnvio)
+            });
+            enviadoOnline = true;
+          } catch (e) {
+            enviadoOnline = false;
+          }
+        }
+
+        if (!enviadoOnline) {
+          await guardarEnColaOffline(payloadEnvio);
+          await actualizarPanelPendientes();
+        }
+
+        renderizarSelectEmpresas([empresa]);
+        document.getElementById("c-empresa-select").value = empresa;
+        document.getElementById("c-empresa-otra").classList.add("hidden");
+
+        if (enviadoOnline) {
+          box.className = "p-3.5 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-900 border border-emerald-400 space-y-2";
+          box.innerHTML = `
+            <div>✅ PDF generado y descargado: <strong>${nombreArchivo}</strong></div>
+            <p class="text-[11px] font-medium">Enviado a tu Google Drive: <strong>Mi unidad &gt; Checklists Maquinaria Obra &gt; ${empresa}</strong></p>
+            <div class="pt-1">
+              <a href="https://drive.google.com/drive/my-drive" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-lg uppercase text-[11px] font-black shadow">
+                📂 Abrir Mi Unidad en Google Drive
+              </a>
+            </div>
+          `;
+        } else {
+          box.className = "p-3.5 rounded-xl text-xs font-bold text-center bg-amber-100 text-amber-950 border-2 border-amber-500 space-y-1.5";
+          box.innerHTML = `
+            <div>📥 Sin internet: PDF descargado en tu móvil (<strong>${nombreArchivo}</strong>)</div>
+            <p class="text-[11px] font-medium">El informe queda guardado en la cola interna de la app y se subirá solo a la carpeta <strong>${empresa}</strong> de Drive en cuanto vuelvas a tener cobertura.</p>
+          `;
+        }
+        box.classList.remove("hidden");
+
+      } catch (err) {
+        wrapperPdf.style.display = "none";
+        box.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-100 text-rose-900 border border-rose-400";
+        box.textContent = "Error al generar el PDF: " + err.message;
+        box.classList.remove("hidden");
+      } finally {
         btn.disabled = false;
-        estadoEnvio.style.color = "red";
-        estadoEnvio.textContent = "Error de red al enviar el informe.";
+        btn.textContent = "📄 Generar PDF y Guardar en Carpeta Empresa";
+      }
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
       });
     }
+
+    const hoy = new Date();
+    document.getElementById("c-fecha").value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+    document.getElementById("c-hora").value = `${String(hoy.getHours()).padStart(2,'0')}:${String(hoy.getMinutes()).padStart(2,'0')}`;
+    actualizarEstadoRedUI();
+    actualizarPanelPendientes();
+    cambiarFormatoChecklist();
+    verificarSesionActiva();
   </script>
 </body>
 </html>
