@@ -3,39 +3,205 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checklist Inspección Maquinaria</title>
+  <title>Checklist Inspección Maquinaria - Elecnor</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; margin: 0; padding: 15px; color: #333; }
-    .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #004a99; padding-bottom: 12px; margin-bottom: 20px; }
-    .header img { max-height: 45px; }
-    h2 { color: #004a99; margin: 0; font-size: 1.3rem; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
-    input[type="text"], input[type="password"], input[type="email"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-    .check-item { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fafafa; }
-    .check-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .btn-group { display: flex; gap: 6px; }
-    .btn-estado { padding: 8px 14px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #fff; }
-    .btn-estado.apto.active { background: #28a745; color: #fff; border-color: #28a745; }
-    .btn-estado.no-apto.active { background: #dc3545; color: #fff; border-color: #dc3545; }
-    .fallo-box { display: none; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #ccc; }
-    .preview-img { max-width: 150px; margin-top: 8px; border-radius: 5px; display: none; border: 1px solid #ccc; }
-    canvas { border: 1px solid #999; border-radius: 6px; width: 100%; height: 140px; touch-action: none; background: #fff; }
-    .btn-primary { width: 100%; padding: 14px; background: #004a99; color: #fff; border: none; border-radius: 6px; font-size: 1.05rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
-    .btn-primary:disabled { background: #99b8d9; }
-    .btn-small { background: #6c757d; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; margin-top: 4px; }
-    .error-msg { color: #dc3545; font-size: 0.9rem; margin-top: 8px; text-align: center; }
+    :root {
+      --elecnor-azul: #002255;
+      --elecnor-azul-oscuro: #001536;
+      --elecnor-naranja: #F35000;
+      --elecnor-naranja-hover: #d94600;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--elecnor-azul) 0%, var(--elecnor-azul-oscuro) 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      color: #333;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      border-top: 5px solid var(--elecnor-naranja);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--elecnor-azul);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      color: var(--elecnor-azul);
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    h3 {
+      color: var(--elecnor-azul);
+      border-bottom: 2px solid var(--elecnor-naranja);
+      padding-bottom: 6px;
+      margin-top: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: var(--elecnor-azul);
+    }
+
+    input[type="text"], input[type="password"], input[type="email"], select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--elecnor-naranja);
+      box-shadow: 0 0 0 2px rgba(243, 80, 0, 0.15);
+    }
+
+    .check-item {
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid var(--elecnor-azul);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #f8fafc;
+    }
+
+    .check-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-estado {
+      padding: 8px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #fff;
+      transition: all 0.2s;
+    }
+
+    .btn-estado.apto.active {
+      background: #28a745;
+      color: #fff;
+      border-color: #28a745;
+    }
+
+    .btn-estado.no-apto.active {
+      background: #dc3545;
+      color: #fff;
+      border-color: #dc3545;
+    }
+
+    .fallo-box {
+      display: none;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .preview-img {
+      max-width: 150px;
+      margin-top: 8px;
+      border-radius: 5px;
+      display: none;
+      border: 1px solid #ccc;
+    }
+
+    canvas {
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      width: 100%;
+      height: 140px;
+      touch-action: none;
+      background: #fff;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--elecnor-naranja);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: var(--elecnor-naranja-hover);
+    }
+
+    .btn-primary:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .btn-small {
+      background: var(--elecnor-azul);
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .error-msg {
+      color: #dc3545;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      text-align: center;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
 
   <!-- PANTALLA DE LOGIN -->
   <div id="login-screen" class="container" style="max-width: 400px; margin-top: 40px;">
-    <div style="text-align: center; margin-bottom: 20px;">
-      <!-- Sube tu logotipo con el nombre logo.png a la misma carpeta en GitHub -->
-      <img src="logo.png" alt="Logo Empresa" style="max-height: 60px;" onerror="this.style.display='none'">
-      <h2>Acceso Técnicos</h2>
+    <div style="text-align: center; margin-bottom: 22px;">
+      <!-- Logo Elecnor integrado en alta calidad -->
+      <svg viewBox="0 0 320 135" width="210" style="display: block; margin: 0 auto 12px auto;" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 18,52 C 75,18 165,6 225,22 C 242,27 235,44 228,54 C 248,50 285,42 304,35 C 275,55 242,66 220,62 C 212,60 220,44 226,35 C 175,20 85,26 18,52 Z" fill="#F35000"/>
+        <text x="160" y="114" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="68" letter-spacing="2" fill="#002255" text-anchor="middle">elecnor</text>
+      </svg>
+      <h2>Acceso usuarios Elecnor</h2>
     </div>
     <div class="form-group">
       <label>Usuario</label>
@@ -54,11 +220,15 @@
     <div class="header">
       <div>
         <h2>Checklist de Maquinaria</h2>
-        <small id="saludo-tecnico" style="color: #666;"></small>
+        <small id="saludo-tecnico" style="color: #475569; font-weight: 600;"></small>
       </div>
-      <div>
-        <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-        <button class="btn-small" onclick="cerrarSesion()" style="display:block; margin-left:auto;">Salir</button>
+      <div style="text-align: right;">
+        <!-- Mini Logo Elecnor en cabecera -->
+        <svg viewBox="0 0 320 135" width="110" style="display: block; margin-bottom: 4px;" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 18,52 C 75,18 165,6 225,22 C 242,27 235,44 228,54 C 248,50 285,42 304,35 C 275,55 242,66 220,62 C 212,60 220,44 226,35 C 175,20 85,26 18,52 Z" fill="#F35000"/>
+          <text x="160" y="114" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="68" letter-spacing="2" fill="#002255" text-anchor="middle">elecnor</text>
+        </svg>
+        <button class="btn-small" onclick="cerrarSesion()">Salir</button>
       </div>
     </div>
 
@@ -77,11 +247,11 @@
     </div>
     <div class="form-group">
       <label>Correo Técnico Prevención (copia del PDF)</label>
-      <input type="email" id="email-tecnico" placeholder="tecnico@tuempresa.com" required>
+      <input type="email" id="email-tecnico" placeholder="tecnico@elecnor.com" required>
     </div>
 
     <!-- PUNTOS DE INSPECCIÓN -->
-    <h3 style="color: #004a99; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Puntos de Control</h3>
+    <h3>Puntos de Control</h3>
     <div id="lista-preguntas"></div>
 
     <!-- RESULTADO GLOBAL -->
@@ -127,10 +297,10 @@
     // --- GESTIÓN DE SESIÓN ---
     window.onload = function() {
       const usuario = sessionStorage.getItem("tecnicoNombre");
-      if (usuario) mostrarApp(usuario);
       renderizarPreguntas();
-      inicializarCanvas("canvas-tecnico");
-      inicializarCanvas("canvas-subcontrata");
+      if (usuario) {
+        mostrarApp(usuario);
+      }
     };
 
     function iniciarSesion() {
@@ -171,6 +341,9 @@
       document.getElementById("login-screen").style.display = "none";
       document.getElementById("app-content").style.display = "block";
       document.getElementById("saludo-tecnico").textContent = "Técnico: " + nombre;
+      // Inicializar paneles de firma justo cuando ya son visibles para evitar desplazamientos del trazo
+      inicializarCanvas("canvas-tecnico");
+      inicializarCanvas("canvas-subcontrata");
     }
 
     function cerrarSesion() {
@@ -211,7 +384,6 @@
       if (estado === "NO APTO") document.getElementById("resultado-global").value = "NO APTA";
     }
 
-    // Comprimir foto en el móvil antes de enviarla para evitar lentitud
     function procesarFoto(event, idx) {
       const file = event.target.files[0];
       if (!file) return;
@@ -293,7 +465,7 @@
       }
 
       btn.disabled = true;
-      estadoEnvio.style.color = "#004a99";
+      estadoEnvio.style.color = "#002255";
       estadoEnvio.textContent = "Generando PDF, subiendo fotos y enviando correos...";
 
       const payload = {
